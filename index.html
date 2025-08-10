@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sadə Tarla Oyunu</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #d0f0c0; padding: 20px; }
+  h1 { color: #2e7d32; }
+  #game { max-width: 400px; margin: auto; background: #a5d6a7; padding: 15px; border-radius: 10px; }
+  button { padding: 10px 15px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+  button:hover { background: #81c784; }
+  #field { width: 200px; height: 200px; background: #4caf50; margin: 10px auto; border-radius: 15px; position: relative; }
+  #crop { position: absolute; width: 100px; height: 100px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+</style>
+</head>
+<body>
+
+<h1>Sadə Tarla Oyunu</h1>
+
+<div id="game">
+  <div id="field">
+    <img id="crop" src="" alt="" />
+  </div>
+  <button onclick="plant()">Ekin Əkmək 🌱</button>
+  <button onclick="water()">Suvarmaq 💧</button>
+  <button onclick="harvest()">Biçmək ✂️</button>
+  <p id="status">Tarlan boşdur.</p>
+  <p>Coin: <span id="coin">0</span></p>
+</div>
+
+<script>
+  let cropStage = 0; // 0 = boş, 1 = əkilmiş, 2 = suvarılmış, 3 = yetişmiş
+  let coin = 0;
+
+  function updateStatus(text) {
+    document.getElementById('status').innerText = text;
+  }
+
+  function updateCoin() {
+    document.getElementById('coin').innerText = coin;
+  }
+
+  function plant() {
+    if (cropStage === 0) {
+      cropStage = 1;
+      document.getElementById('crop').src = 'https://i.imgur.com/O5rXmLk.png'; // toxum şəkli
+      updateStatus('Ekin əkildi!');
+    } else {
+      updateStatus('Tarlan artıq ekinlidir!');
+    }
+  }
+
+  function water() {
+    if (cropStage === 1) {
+      cropStage = 2;
+      document.getElementById('crop').src = 'https://i.imgur.com/eH3q3Dw.png'; // bitki şəkli
+      updateStatus('Tarlan suvarıldı!');
+    } else if (cropStage === 0) {
+      updateStatus('Əvvəlcə ekin ək!');
+    } else {
+      updateStatus('Suvarmaq lazım deyil!');
+    }
+  }
+
+  function harvest() {
+    if (cropStage === 2) {
+      cropStage = 0;
+      document.getElementById('crop').src = '';
+      coin += 10;
+      updateCoin();
+      updateStatus('Ekin biçildi! 10 coin qazandın!');
+    } else if (cropStage === 0) {
+      updateStatus('Əvvəlcə ekin ək!');
+    } else {
+      updateStatus('Ekin hələ yetişməyib!');
+    }
+  }
+</script>
+
+</body>
+</html>
