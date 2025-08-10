@@ -3,79 +3,263 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Sadə Tarla Oyunu</title>
+<title>Tarla Oyunu - Mürəkkəb Versiya</title>
 <style>
   body { font-family: Arial, sans-serif; background: #d0f0c0; padding: 20px; }
-  h1 { color: #2e7d32; }
-  #game { max-width: 400px; margin: auto; background: #a5d6a7; padding: 15px; border-radius: 10px; }
-  button { padding: 10px 15px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
-  button:hover { background: #81c784; }
-  #field { width: 200px; height: 200px; background: #4caf50; margin: 10px auto; border-radius: 15px; position: relative; }
-  #crop { position: absolute; width: 100px; height: 100px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  h1 { color: #2e7d32; text-align: center; }
+  #game { max-width: 600px; margin: auto; background: #a5d6a7; padding: 20px; border-radius: 15px; }
+  #fields { display: flex; justify-content: space-around; margin-bottom: 20px; }
+  .field {
+    width: 120px; height: 120px; background: #4caf50; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    color: white; font-weight: bold; cursor: pointer; position: relative;
+  }
+  .field img {
+    width: 60px; height: 60px; margin-bottom: 8px;
+  }
+  .field.locked {
+    background: #8bc34a99;
+    cursor: not-allowed;
+  }
+  button {
+    padding: 10px 20px; margin: 5px; border: none; border-radius: 8px;
+    background-color: #388e3c; color: white; cursor: pointer;
+    font-weight: bold;
+  }
+  button:disabled {
+    background-color: #a5d6a7;
+    cursor: not-allowed;
+  }
+  #status { margin-top: 15px; font-weight: bold; min-height: 20px; }
+  #inventory { margin-top: 20px; background: #81c784cc; padding: 10px; border-radius: 10px; }
+  #inventory p { margin: 5px 0; }
 </style>
 </head>
 <body>
 
-<h1>Sadə Tarla Oyunu</h1>
+<h1>Tarla Oyunu</h1>
 
 <div id="game">
-  <div id="field">
-    <img id="crop" src="" alt="" />
+  <div id="fields">
+    <div class="field" id="field1" onclick="selectField(1)">Boş</div>
+    <div class="field" id="field2" onclick="selectField(2)">Boş</div>
+    <div class="field locked" id="field3" title="Bu sahə kilidlidir. Daha çox coin topla!">Kilidli</div>
   </div>
-  <button onclick="plant()">Ekin Əkmək 🌱</button>
-  <button onclick="water()">Suvarmaq 💧</button>
-  <button onclick="harvest()">Biçmək ✂️</button>
-  <p id="status">Tarlan boşdur.</p>
-  <p>Coin: <span id="coin">0</span></p>
+
+  <div style="text-align:center;">
+    <button onclick="plant()" id="btnPlant" disabled>Ekin Əkmək 🌱</button>
+    <button onclick="water()" id="btnWater" disabled>Suvarmaq 💧</button>
+    <button onclick="harvest()" id="btnHarvest" disabled>Biçmək ✂️</button>
+  </div>
+
+  <div id="status"></div>
+
+  <div id="inventory">
+    <p>Coin: <span id="coin">0</span></p>
+    <p>Toyuq sayı: <span id="chickenCount">0</span></p>
+    <p>Yumurta sayı: <span id="eggCount">0</span></p>
+    <button onclick="buyChicken()" id="btnBuyChicken">Toyuq Al (50 coin)</button>
+    <button onclick="feedChicken()" id="btnFeedChicken" disabled>Yem Ver (10 coin)</button>
+    <button onclick="sellEggs()" id="btnSellEggs" disabled>Yumurta Sat (5 coin hər biri)</button>
+  </div>
 </div>
 
 <script>
-  let cropStage = 0; // 0 = boş, 1 = əkilmiş, 2 = suvarılmış, 3 = yetişmiş
+  // Oyun vəziyyəti
+  let fields = {
+    1: { stage: 0 }, // 0 = boş, 1 = əkilmiş, 2 = suvarılmış, 3 = yetişmiş
+    2: { stage: 0 },
+    3: { stage: 0, locked: true }
+  };
+  let selectedField = null;
+
   let coin = 0;
+  let chickenCount = 0;
+  let eggCount = 0;
 
   function updateStatus(text) {
     document.getElementById('status').innerText = text;
   }
-
-  function updateCoin() {
+  function updateInventory() {
     document.getElementById('coin').innerText = coin;
+    document.getElementById('chickenCount').innerText = chickenCount;
+    document.getElementById('eggCount').innerText = eggCount;
+
+    document.getElementById('btnFeedChicken').disabled = chickenCount === 0 || coin < 10;
+    document.getElementById('btnSellEggs').disabled = eggCount === 0;
+    document.getElementById('btnBuyChicken').disabled = coin < 50;
+  }
+  function updateFields() {
+    for(let i=1; i<=3; i++) {
+      const field = document.getElementById(`field${i}`);
+      const info = fields[i];
+
+      if(info.locked) {
+        field.classList.add('locked');
+        field.innerText = "Kilidli";
+        field.style.cursor = "not-allowed";
+        continue;
+      }
+
+      switch(info.stage) {
+        case 0:
+          field.innerText = "Boş";
+          field.style.background = "#4caf50";
+          break;
+        case 1:
+          field.innerHTML = `<img src="https://i.imgur.com/O5rXmLk.png" alt="toxum"/> Toxum əkildi`;
+          field.style.background = "#81c784";
+          break;
+        case 2:
+          field.innerHTML = `<img src="https://i.imgur.com/eH3q3Dw.png" alt="bitki"/> Bitki böyüyür`;
+          field.style.background = "#388e3c";
+          break;
+        case 3:
+          field.innerHTML = `<img src="https://i.imgur.com/6bREmYY.png" alt="yetişmiş"/> Yetişmiş bitki`;
+          field.style.background = "#1b5e20";
+          break;
+      }
+    }
+  }
+
+  function selectField(num) {
+    if(fields[num].locked) {
+      updateStatus("Bu sahə kilidlidir. Daha çox coin toplayanda açılacaq.");
+      return;
+    }
+    selectedField = num;
+    updateStatus(`Sən sahə ${num}-ni seçdin.`);
+    document.getElementById('btnPlant').disabled = fields[num].stage !== 0;
+    document.getElementById('btnWater').disabled = fields[num].stage !== 1;
+    document.getElementById('btnHarvest').disabled = fields[num].stage !== 3;
   }
 
   function plant() {
-    if (cropStage === 0) {
-      cropStage = 1;
-      document.getElementById('crop').src = 'https://i.imgur.com/O5rXmLk.png'; // toxum şəkli
-      updateStatus('Ekin əkildi!');
-    } else {
-      updateStatus('Tarlan artıq ekinlidir!');
+    if(selectedField === null) {
+      updateStatus("Əvvəlcə bir sahə seç.");
+      return;
     }
+    if(fields[selectedField].stage !== 0) {
+      updateStatus("Bu sahədə artıq ekin var.");
+      return;
+    }
+    fields[selectedField].stage = 1;
+    updateFields();
+    updateStatus("Ekin əkildi!");
+    updateButtons();
   }
 
   function water() {
-    if (cropStage === 1) {
-      cropStage = 2;
-      document.getElementById('crop').src = 'https://i.imgur.com/eH3q3Dw.png'; // bitki şəkli
-      updateStatus('Tarlan suvarıldı!');
-    } else if (cropStage === 0) {
-      updateStatus('Əvvəlcə ekin ək!');
-    } else {
-      updateStatus('Suvarmaq lazım deyil!');
+    if(selectedField === null) {
+      updateStatus("Əvvəlcə bir sahə seç.");
+      return;
     }
+    if(fields[selectedField].stage !== 1) {
+      updateStatus("Bu sahədə suvarmağa ehtiyac yoxdur.");
+      return;
+    }
+    fields[selectedField].stage = 2;
+    updateFields();
+    updateStatus("Tarlan suvarıldı!");
+
+    // 5 saniyə sonra yetişmiş olur
+    setTimeout(() => {
+      if(fields[selectedField].stage === 2) {
+        fields[selectedField].stage = 3;
+        updateFields();
+        updateStatus("Ekin yetişdi! Biçməyə hazırdır.");
+        updateButtons();
+      }
+    }, 5000);
+    updateButtons();
   }
 
   function harvest() {
-    if (cropStage === 2) {
-      cropStage = 0;
-      document.getElementById('crop').src = '';
-      coin += 10;
-      updateCoin();
-      updateStatus('Ekin biçildi! 10 coin qazandın!');
-    } else if (cropStage === 0) {
-      updateStatus('Əvvəlcə ekin ək!');
-    } else {
-      updateStatus('Ekin hələ yetişməyib!');
+    if(selectedField === null) {
+      updateStatus("Əvvəlcə bir sahə seç.");
+      return;
+    }
+    if(fields[selectedField].stage !== 3) {
+      updateStatus("Ekin hələ yetişməyib.");
+      return;
+    }
+    fields[selectedField].stage = 0;
+    coin += 20;
+    updateFields();
+    updateStatus("Ekin biçildi! 20 coin qazandın.");
+    updateInventory();
+    updateButtons();
+
+    // Kilidli sahəni açmaq üçün coin limiti
+    if(coin >= 100 && fields[3].locked) {
+      fields[3].locked = false;
+      document.getElementById('field3').classList.remove('locked');
+      updateStatus("Yeni sahə açıldı! Sahə 3 artıq istifadəyə hazırdır.");
+      updateFields();
     }
   }
+
+  function buyChicken() {
+    if(coin < 50) {
+      updateStatus("Toyuq almaq üçün kifayət qədər coin yoxdur.");
+      return;
+    }
+    chickenCount++;
+    coin -= 50;
+    updateStatus("Toyuq alındı!");
+    updateInventory();
+    updateButtons();
+  }
+
+  function feedChicken() {
+    if(chickenCount === 0) {
+      updateStatus("Əvvəlcə toyuq almalısan.");
+      return;
+    }
+    if(coin < 10) {
+      updateStatus("Yem almaq üçün kifayət qədər coin yoxdur.");
+      return;
+    }
+    coin -= 10;
+    eggCount += chickenCount; // Hər toyuq bir yumurta verir
+    updateStatus("Toyuqlara yem verildi, yumurtalar toplandı!");
+    updateInventory();
+    updateButtons();
+  }
+
+  function sellEggs() {
+    if(eggCount === 0) {
+      updateStatus("Satmaq üçün yumurta yoxdur.");
+      return;
+    }
+    const earnings = eggCount * 5;
+    coin += earnings;
+    updateStatus(`Yumurtalar satıldı! ${earnings} coin qazandın.`);
+    eggCount = 0;
+    updateInventory();
+    updateButtons();
+  }
+
+  function updateButtons() {
+    if(selectedField === null) {
+      document.getElementById('btnPlant').disabled = true;
+      document.getElementById('btnWater').disabled = true;
+      document.getElementById('btnHarvest').disabled = true;
+    } else {
+      document.getElementById('btnPlant').disabled = fields[selectedField].stage !== 0;
+      document.getElementById('btnWater').disabled = fields[selectedField].stage !== 1;
+      document.getElementById('btnHarvest').disabled = fields[selectedField].stage !== 3;
+    }
+
+    document.getElementById('btnFeedChicken').disabled = chickenCount === 0 || coin < 10;
+    document.getElementById('btnSellEggs').disabled = eggCount === 0;
+    document.getElementById('btnBuyChicken').disabled = coin < 50;
+  }
+
+  // Başlanğıc yeniləmələr
+  updateFields();
+  updateInventory();
+  updateButtons();
 </script>
 
 </body>
