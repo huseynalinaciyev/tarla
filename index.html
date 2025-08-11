@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-<meta charset="UTF-8">
-<title>Ferma Oyunu</title>
-<link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ferma Oyunu - Spritelı</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>🌾 Ferma Oyunu 🌾</h1>
-    <div>
-        <p id="coins">💰 Pul: 0</p>
-        <p id="stock">🌱 Məhsul: 0</p>
-        <p id="eggs">🥚 Yumurta: 0</p>
+    <h1>🌿 Ferma Oyunu 🌿</h1>
+    <div class="status-bar">
+        <div class="status-item">💰 Pul: <span id="coins">0</span></div>
+        <div class="status-item">🌱 Məhsul: <span id="stock">0</span></div>
+        <div class="status-item">🥚 Yumurta: <span id="eggs">0</span></div>
+    </div>
+    <div class="buttons">
         <button onclick="plantCrop()">Ək</button>
         <button onclick="waterCrops()">Suvar</button>
         <button onclick="harvestCrops()">Yığ</button>
