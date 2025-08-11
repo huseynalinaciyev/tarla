@@ -15,13 +15,21 @@
         <div>🥚 Yumurtalar: <span id="eggs">0</span></div>
         <div>🥛 Süd: <span id="milk">0</span></div>
     </div>
+
     <div id="farm-container">
-        <div id="farm-plot" class="plot-empty">
+        <div id="farm-plot" class="plot-empty" onclick="showPlotInfo()">
             <div id="soil"></div>
             <div id="plant-area"></div>
             <div id="watering-animation" class="hidden"></div>
         </div>
+        <div id="plot-info">
+            <p><strong>Bitki vəziyyəti:</strong> <span id="plant-stage-text">Yoxdur</span></p>
+            <p><strong>Əkilmə vaxtı:</strong> <span id="planted-at">—</span></p>
+            <p><strong>Son suvarma vaxtı:</strong> <span id="last-watered-at">—</span></p>
+            <p><strong>Məhsul yığılmağa hazırdır:</strong> <span id="harvest-ready">Xeyr</span></p>
+        </div>
     </div>
+
     <div class="buttons">
         <button onclick="plantCrop()">Bitki ək</button>
         <button onclick="waterCrop()">Suvar</button>
