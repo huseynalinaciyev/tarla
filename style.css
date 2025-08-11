@@ -56,14 +56,14 @@ h1 {
     bottom: 5%;
     left: 50%;
     transform: translateX(-50%);
-    width: 60%;
-    height: 60%;
+    width: 50%;         /* Ölçü kiçildildi (əvvəl 60% idi) */
+    height: 50%;        /* Ölçü kiçildildi (əvvəl 60% idi) */
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center bottom;
     z-index: 2;
-    font-size: 4.5rem;
-    line-height: 60vw; /* emoji orta hizalama üçün */
+    font-size: 3.5rem;  /* Emoji ölçüsü azaldıldı (əvvəl 4.5rem idi) */
+    line-height: 50vw;  /* Emoji üçün orta hizalama */
     user-select: none;
     display: flex;
     justify-content: center;
