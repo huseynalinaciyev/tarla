@@ -9,7 +9,7 @@ welcomeEl.innerText = `Xoş gəlmisiniz, @${telegramUser}!`;
 const plantImages = {
     seed: 'https://i.imgur.com/HB7YbcZ.png',
     growing: 'https://i.imgur.com/5o1HoQj.png',
-    mature: 'https://i.imgur.com/X3B1rzP.png'
+    mature: 'https://huseynalinaciyev.github.io/tarla/mature.png'
 };
 
 const COIN_PER_PRODUCT = 1;
