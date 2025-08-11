@@ -1,424 +1,353 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="az">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Tarla Oyunu - Genişləndirilmiş Versiya</title>
-<style>
-  body { font-family: Arial, sans-serif; background: #e6f0d9; padding: 20px; }
-  h1 { text-align: center; color: #2e7d32; margin-bottom: 10px; }
-  #game { max-width: 700px; margin: auto; background: #a5d6a7; padding: 20px; border-radius: 15px; }
-  #fields { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 20px; }
-  .field {
-    width: 130px; height: 130px; background: #4caf50; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center; flex-direction: column;
-    color: white; font-weight: bold; cursor: pointer; position: relative;
-    user-select: none;
-  }
-  .field.locked {
-    background: #8bc34a99;
-    cursor: not-allowed;
-  }
-  .field img {
-    width: 70px; height: 70px; margin-bottom: 5px;
-  }
-  #controls {
-    text-align: center;
-    margin-bottom: 15px;
-  }
-  select, button {
-    padding: 8px 12px;
-    margin: 0 5px 10px 5px;
-    border-radius: 8px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  button:disabled {
-    background-color: #a5d6a7;
-    cursor: not-allowed;
-  }
-  #status {
-    min-height: 24px;
-    font-weight: bold;
-    color: #1b5e20;
-    margin-bottom: 15px;
-    text-align: center;
-  }
-  #inventory {
-    background: #81c784cc;
-    padding: 15px;
-    border-radius: 10px;
-    font-weight: bold;
-  }
-  #inventory p {
-    margin: 5px 0;
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sadə Tarla Oyunu (HTML5)</title>
+  <style>
+    :root{--bg:#f0f7ef;--card:#fff;--accent:#4caf50;--muted:#666}
+    body{font-family:Inter,Segoe UI,Helvetica,Arial;background:var(--bg);margin:0;padding:20px}
+    h1{margin:0 0 10px;font-size:20px}
+    .top{display:flex;gap:12px;align-items:center}
+    .panel{background:var(--card);padding:12px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+    .stats{display:flex;gap:12px;align-items:center}
+    .stat{padding:8px 12px;border-radius:10px;background:#f7fff6;border:1px solid #e6f5ea}
+    button{background:var(--accent);color:#fff;border:0;padding:8px 10px;border-radius:8px;cursor:pointer}
+    .controls{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+    .farm{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+    .slot{background:#fff;border-radius:10px;padding:10px;min-height:120px;display:flex;flex-direction:column;justify-content:space-between}
+    .slot .title{font-weight:600}
+    .slot .meta{font-size:13px;color:var(--muted)}
+    .actions{display:flex;gap:6px;flex-wrap:wrap}
+    .small{padding:6px 8px;font-size:13px}
+    .green{background:#2e7d32}
+    .danger{background:#b71c1c}
+    .buy{background:#1565c0}
+    footer{margin-top:18px;font-size:13px;color:var(--muted)}
+    .log{max-height:140px;overflow:auto;padding:8px;background:#fff;border-radius:8px;margin-top:10px}
+    label{font-size:13px}
+    .badge{background:#e8f5e9;color:#2e7d32;padding:4px 8px;border-radius:999px;font-weight:600}
+  </style>
 </head>
 <body>
-
-<h1>Tarla Oyunu</h1>
-
-<div id="game">
-  <div id="fields"></div>
-
-  <div id="controls">
-    <select id="seedSelect" disabled>
-      <option value="">Bitki seç</option>
-    </select>
-    <button id="btnPlant" disabled>Ekin Əkmək 🌱</button>
-    <button id="btnWater" disabled>Suvarmaq 💧</button>
-    <button id="btnHarvest" disabled>Biçmək ✂️</button>
+  <h1>Sadə Tarla Oyunu</h1>
+  <div class="top">
+    <div class="panel stats">
+      <div class="stat">Coins: <span id="coins">0</span></div>
+      <div class="stat">Slots: <span id="slotsCount">4</span></div>
+      <div class="stat">Plants in stock: <span id="plantsStock">0</span></div>
+      <div class="stat">Chickens: <span id="chickensCount">0</span></div>
+    </div>
+    <div style="margin-left:auto" class="panel">
+      <label>Test modu (1 oyun saat = 60s)</label>
+      <div class="controls" style="margin-top:6px">
+        <button id="toggleTime" class="small">Toggle Test/Real</button>
+        <button id="reset" class="small danger">Reset Save</button>
+      </div>
+    </div>
   </div>
 
-  <div id="status"></div>
+  <div class="panel" style="margin-top:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <strong>Əməliyyatlar</strong>
+        <div class="controls" style="margin-top:8px">
+          <button id="plantBtn" class="small">Əkin (seeds pulsuz)</button>
+          <button id="waterAll" class="small">Hamısını suvar</button>
+          <button id="harvestAll" class="small">Hamısını yığ</button>
+          <button id="sellAll" class="small">Hamısını sat (1 coin/bitki)</button>
+          <button id="sellEggs" class="small">Yumurtaları sat (5 coin/əd)</button>
+        </div>
+      </div>
+      <div>
+        <strong>Mağaza</strong>
+        <div class="controls" style="margin-top:8px">
+          <button id="buySlot" class="small buy">Yeni slot al (100 coin)</button>
+          <button id="buyChicken" class="small buy">Toyuq al (100000 coin)</button>
+        </div>
+      </div>
+    </div>
 
-  <div id="inventory">
-    <p>Coin: <span id="coin">0</span></p>
-    <p>Gübrə: <span id="fertilizer">0</span></p>
-    <p>Heyvanlar:</p>
-    <p>Toyuq: <span id="chickenCount">0</span></p>
-    <p>Dovşan: <span id="rabbitCount">0</span></p>
-    <button id="btnBuyChicken">Toyuq Al (50 coin)</button>
-    <button id="btnBuyRabbit">Dovşan Al (70 coin)</button>
-    <button id="btnFeedAnimals" disabled>Yem Ver (10 coin)</button>
-    <button id="btnSellEggs" disabled>Yumurta Sat (5 coin hər biri)</button>
-    <button id="btnSellCarrots" disabled>Dovşan Yediyi Havuç Sat (7 coin hər biri)</button>
+    <div class="log" id="logArea"></div>
   </div>
-</div>
 
-<script>
-  // Bitki növləri məlumatı
-  const crops = {
-    corn: {
-      name: 'Qarğıdalı',
-      growTime: 8000,
-      stages: [
-        'https://i.imgur.com/O5rXmLk.png', // toxum
-        'https://i.imgur.com/eH3q3Dw.png', // cücərti
-        'https://i.imgur.com/6bREmYY.png'  // yetişmiş
-      ],
-      price: 30
-    },
-    tomato: {
-      name: 'Pomidor',
-      growTime: 12000,
-      stages: [
-        'https://i.imgur.com/O5rXmLk.png',
-        'https://i.imgur.com/eH3q3Dw.png',
-        'https://i.imgur.com/6bREmYY.png'
-      ],
-      price: 50
-    },
-    potato: {
-      name: 'Kartof',
-      growTime: 15000,
-      stages: [
-        'https://i.imgur.com/O5rXmLk.png',
-        'https://i.imgur.com/eH3q3Dw.png',
-        'https://i.imgur.com/6bREmYY.png'
-      ],
-      price: 70
-    }
-  };
+  <div class="farm" id="farm"></div>
 
-  // Oyun vəziyyəti
-  const fieldCount = 5;
-  let fields = {};
-  let selectedField = null;
+  <footer>
+    Qaydalar: Bitki əkildikdən sonra <span class="badge">1 oyun saat</span> gözləyib suvarılmalıdır. Suvarıldıqdan sonra <span class="badge">2 oyun saat</span> sonra məhsul yığılmağa hazır olur. Satış — hər bitki üçün 1 coin. Toyuq 100000 coin-ə alındıqdan sonra hər <span class="badge">1 oyun saatda</span> 1 yumurta qoyur. Yumurtanı satanda 5 coin qazandırır. Test modunda 1 oyun saat = 60 saniyə (oyun test üçün sürətlə idarə oluna bilər).
+  </footer>
 
-  let coin = 100;
-  let fertilizer = 0;
-  let chickenCount = 0;
-  let rabbitCount = 0;
-  let eggCount = 0;
-  let carrotCount = 0;
+  <script>
+    // Sadə HTML5 ferma oyunu
+    // Saxlama açarları
+    const SAVE_KEY = 'farm_save_v1';
 
-  // Heyvan yeməyə dair məlumat
-  const feedCost = 10;
+    // Game settings (gameHourMs: how many real ms equals 1 in-game hour)
+    const REAL_GAME_HOUR = 60*60*1000; // 1 real hour
+    const TEST_GAME_HOUR = 60*1000; // 1 minute for testing
 
-  // İnventarı yenilə
-  function updateInventory() {
-    document.getElementById('coin').innerText = coin;
-    document.getElementById('fertilizer').innerText = fertilizer;
-    document.getElementById('chickenCount').innerText = chickenCount;
-    document.getElementById('rabbitCount').innerText = rabbitCount;
-    document.getElementById('btnFeedAnimals').disabled = (chickenCount + rabbitCount) === 0 || coin < feedCost;
-    document.getElementById('btnSellEggs').disabled = eggCount === 0;
-    document.getElementById('btnSellCarrots').disabled = carrotCount === 0;
-    document.getElementById('btnBuyChicken').disabled = coin < 50;
-    document.getElementById('btnBuyRabbit').disabled = coin < 70;
-  }
+    let gameHourMs = TEST_GAME_HOUR; // default to test mode for development
+    let timeMode = 'test'; // 'test' or 'real'
 
-  // Statusu yenilə
-  function updateStatus(text) {
-    document.getElementById('status').innerText = text;
-  }
+    // Game state
+    const state = {
+      coins: 0,
+      slots: [], // each slot: null or plant object
+      slotsCount: 4,
+      chickens: 0,
+      eggs: 0,
+      lastTick: Date.now(),
+    };
 
-  // Sahələri yaradıb göstər
-  function createFields() {
-    const container = document.getElementById('fields');
-    container.innerHTML = '';
-    for(let i=1; i<=fieldCount; i++) {
-      fields[i] = {
-        cropType: null,
-        stage: 0,
-        growTimeout: null,
-        fertilizerUsed: false
-      };
-      const div = document.createElement('div');
-      div.className = 'field';
-      div.id = 'field' + i;
-      div.innerText = 'Boş';
-      div.onclick = () => selectField(i);
-      container.appendChild(div);
-    }
-  }
+    // Plant rules: after planting -> wait 1 hour to water; after watering -> wait 2 hours to harvest
+    const WATER_WAIT_HOURS = 1;
+    const HARVEST_AFTER_WATER_HOURS = 2;
 
-  // Sahəni seç
-  function selectField(id) {
-    selectedField = id;
-    updateStatus(`Sahə ${id} seçildi.`);
-    updateControls();
-  }
-
-  // İdarəetmə düymələrini yenilə
-  function updateControls() {
-    const seedSelect = document.getElementById('seedSelect');
-    const btnPlant = document.getElementById('btnPlant');
-    const btnWater = document.getElementById('btnWater');
-    const btnHarvest = document.getElementById('btnHarvest');
-
-    if(selectedField === null) {
-      seedSelect.disabled = true;
-      btnPlant.disabled = true;
-      btnWater.disabled = true;
-      btnHarvest.disabled = true;
-      return;
-    }
-
-    const field = fields[selectedField];
-
-    seedSelect.disabled = (field.stage !== 0);
-    btnPlant.disabled = (field.stage !== 0 || seedSelect.value === "");
-    btnWater.disabled = (field.stage !== 1);
-    btnHarvest.disabled = (field.stage !== 3);
-  }
-
-  // Ekin ək
-  function plant() {
-    const seedSelect = document.getElementById('seedSelect');
-    const cropKey = seedSelect.value;
-    if(!cropKey) {
-      updateStatus("Əvvəlcə bitki seçin.");
-      return;
-    }
-    if(selectedField === null) {
-      updateStatus("Əvvəlcə sahə seçin.");
-      return;
-    }
-
-    const field = fields[selectedField];
-    if(field.stage !== 0) {
-      updateStatus("Bu sahədə artıq bitki var.");
-      return;
-    }
-
-    field.cropType = cropKey;
-    field.stage = 1;
-    updateField(selectedField);
-
-    updateStatus(`${crops[cropKey].name} əkildi.`);
-    updateControls();
-  }
-
-  // Suvar
-  function water() {
-    if(selectedField === null) {
-      updateStatus("Əvvəlcə sahə seçin.");
-      return;
-    }
-    const field = fields[selectedField];
-    if(field.stage !== 1) {
-      updateStatus("Bu sahədə suvarmağa ehtiyac yoxdur.");
-      return;
-    }
-    field.stage = 2;
-    updateField(selectedField);
-
-    updateStatus("Tarlan suvarıldı!");
-
-    // Bitkinin yetişmə vaxtını hesablamaq üçün gübrə varsa, vaxtı qısalt
-    let growTime = crops[field.cropType].growTime;
-    if(field.fertilizerUsed) {
-      growTime = Math.floor(growTime * 0.7); // 30% sürət artımı
-    }
-
-    field.growTimeout = setTimeout(() => {
-      field.stage = 3;
-      updateField(selectedField);
-      updateStatus(`${crops[field.cropType].name} yetişdi! Biçməyə hazırdır.`);
-      updateControls();
-    }, growTime);
-
-    updateControls();
-  }
-
-  // Biç
-  function harvest() {
-    if(selectedField === null) {
-      updateStatus("Əvvəlcə sahə seçin.");
-      return;
-    }
-    const field = fields[selectedField];
-    if(field.stage !== 3) {
-      updateStatus("Bitki hələ yetişməyib.");
-      return;
-    }
-
-    // Yetişmiş bitkini biç
-    let earning = crops[field.cropType].price;
-    coin += earning;
-
-    // Kartof və pomidor kartof/kök kimi götürək
-    if(field.cropType === 'potato') carrotCount++;
-    if(field.cropType === 'tomato') carrotCount++;
-
-    field.cropType = null;
-    field.stage = 0;
-    if(field.growTimeout) {
-      clearTimeout(field.growTimeout);
-      field.growTimeout = null;
-    }
-    field.fertilizerUsed = false;
-
-    updateField(selectedField);
-    updateStatus(`Bitki biçildi! ${earning} coin qazandın.`);
-    updateInventory();
-    updateControls();
-  }
-
-  // Heyvan al
-  function buyChicken() {
-    if(coin < 50) {
-      updateStatus("Toyuq almaq üçün kifayət qədər coin yoxdur.");
-      return;
-    }
-    chickenCount++;
-    coin -= 50;
-    updateStatus("Toyuq alındı!");
-    updateInventory();
-  }
-
-  function buyRabbit() {
-    if(coin < 70) {
-      updateStatus("Dovşan almaq üçün kifayət qədər coin yoxdur.");
-      return;
-    }
-    rabbitCount++;
-    coin -= 70;
-    updateStatus("Dovşan alındı!");
-    updateInventory();
-  }
-
-  // Heyvanlara yem ver
-  function feedAnimals() {
-    if((chickenCount + rabbitCount) === 0) {
-      updateStatus("Əvvəlcə heyvan almalısan.");
-      return;
-    }
-    if(coin < feedCost) {
-      updateStatus("Yem almaq üçün kifayət qədər coin yoxdur.");
-      return;
-    }
-    coin -= feedCost;
-
-    // Yumurtalar və havuçlar topla
-    eggCount += chickenCount;
-    carrotCount += rabbitCount;
-
-    updateStatus("Heyvanlara yem verildi, məhsullar toplandı!");
-    updateInventory();
-  }
-
-  // Məhsulları sat
-  function sellEggs() {
-    if(eggCount === 0) {
-      updateStatus("Satmaq üçün yumurta yoxdur.");
-      return;
-    }
-    const earning = eggCount * 5;
-    coin += earning;
-    eggCount = 0;
-    updateStatus(`Yumurtalar satıldı! ${earning} coin qazandın.`);
-    updateInventory();
-  }
-
-  function sellCarrots() {
-    if(carrotCount === 0) {
-      updateStatus("Satmaq üçün havuç yoxdur.");
-      return;
-    }
-    const earning = carrotCount * 7;
-    coin += earning;
-    carrotCount = 0;
-    updateStatus(`Havuc satıldı! ${earning} coin qazandın.`);
-    updateInventory();
-  }
-
-  // Sahəni yenilə
-  function updateField(id) {
-    const field = fields[id];
-    const div = document.getElementById('field' + id);
-
-    if(field.stage === 0) {
-      div.innerText = "Boş";
-      div.style.background = "#4caf50";
-    } else {
-      const crop = crops[field.cropType];
-      div.innerHTML = `<img src="${crop.stages[field.stage - 1]}" alt="${crop.name}" />${crop.name}`;
-      if(field.stage === 3) {
-        div.style.background = "#1b5e20";
-      } else if(field.stage === 2) {
-        div.style.background = "#388e3c";
-      } else {
-        div.style.background = "#81c784";
+    // Init
+    function load() {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (raw) {
+        try { Object.assign(state, JSON.parse(raw)); }
+        catch(e){ console.warn('save load failed',e); }
       }
+      // ensure slots exist
+      if (!state.slots || !Array.isArray(state.slots)) state.slots = [];
+      while (state.slots.length < state.slotsCount) state.slots.push(null);
+      render();
     }
-  }
 
-  // Bitki növlərini seçim listəsinə doldur
-  function populateSeedSelect() {
-    const select = document.getElementById('seedSelect');
-    select.innerHTML = `<option value="">Bitki seç</option>`;
-    for(const key in crops) {
-      select.innerHTML += `<option value="${key}">${crops[key].name}</option>`;
+    function save() {
+      state.lastTick = Date.now();
+      localStorage.setItem(SAVE_KEY, JSON.stringify(state));
     }
-  }
 
-  // Başlanğıc
-  function init() {
-    createFields();
-    populateSeedSelect();
-    updateInventory();
-    updateStatus('Oyuna xoş gəlmisiniz! Sahə seçib bitki əkə bilərsiniz.');
-  }
+    // Helpers
+    function log(msg){
+      const el = document.getElementById('logArea');
+      const p = document.createElement('div');
+      p.textContent = '['+new Date().toLocaleTimeString()+'] '+msg;
+      el.prepend(p);
+      if (el.childNodes.length>200) el.removeChild(el.lastChild);
+    }
 
-  // Hadisə qulaq asıcıları əlavə et
-  document.getElementById('btnPlant').addEventListener('click', plant);
-  document.getElementById('btnWater').addEventListener('click', water);
-  document.getElementById('btnHarvest').addEventListener('click', harvest);
-  document.getElementById('btnBuyChicken').addEventListener('click', buyChicken);
-  document.getElementById('btnBuyRabbit').addEventListener('click', buyRabbit);
-  document.getElementById('btnFeedAnimals').addEventListener('click', feedAnimals);
-  document.getElementById('btnSellEggs').addEventListener('click', sellEggs);
-  document.getElementById('btnSellCarrots').addEventListener('click', sellCarrots);
+    function render(){
+      document.getElementById('coins').textContent = state.coins;
+      document.getElementById('slotsCount').textContent = state.slotsCount;
+      document.getElementById('plantsStock').textContent = state.slots.filter(s=>s).length;
+      document.getElementById('chickensCount').textContent = state.chickens;
 
-  document.getElementById('seedSelect').addEventListener('change', updateControls);
+      const farm = document.getElementById('farm');
+      farm.innerHTML = '';
+      state.slots.forEach((slot, idx)=>{
+        const div = document.createElement('div');
+        div.className = 'slot panel';
+        if (!slot) {
+          div.innerHTML = `<div><div class="title">Boş Slot #${idx+1}</div><div class="meta">Buraya əkilə bilər</div></div>
+            <div class="actions"><button class="small" onclick="plantAt(${idx})">Əkin</button></div>`;
+        } else {
+          const plantedAt = new Date(slot.plantedAt);
+          const wateredAt = slot.wateredAt ? new Date(slot.wateredAt) : null;
+          const now = Date.now();
+          let statusText = '';
+          let canWater = false;
+          let canHarvest = false;
+          if (!slot.watered) {
+            const msToWater = slot.plantedAt + WATER_WAIT_HOURS*gameHourMs - now;
+            if (msToWater <= 0) { statusText = 'Suvarmağa hazır'; canWater = true; }
+            else statusText = 'Suvarmaq üçün: ' + fmtMs(msToWater);
+          } else {
+            const msToHarvest = slot.wateredAt + HARVEST_AFTER_WATER_HOURS*gameHourMs - now;
+            if (msToHarvest <= 0) { statusText = 'Yığmağa hazır'; canHarvest = true; }
+            else statusText = 'Yığım üçün: ' + fmtMs(msToHarvest);
+          }
 
-  init();
-</script>
+          div.innerHTML = `<div>
+            <div class="title">Bitki #${idx+1}</div>
+            <div class="meta">Əkilmə vaxtı: ${plantedAt.toLocaleTimeString()}</div>
+            <div class="meta">${wateredAt ? 'Son suvarma: '+wateredAt.toLocaleTimeString() : 'Hələ suvarılmayıb'}</div>
+            <div class="meta" style="margin-top:6px"><strong>${statusText}</strong></div>
+          </div>
+          <div class="actions">
+            <button class="small" onclick="removePlant(${idx})">Sil</button>
+            <button class="small green" ${canWater? '':'disabled'} onclick="waterAt(${idx})">Suvar</button>
+            <button class="small buy" ${canHarvest? '':'disabled'} onclick="harvestAt(${idx})">Yığ</button>
+            <button class="small" onclick="sellPlant(${idx})">Sat (1 coin)</button>
+          </div>`;
+        }
+        farm.appendChild(div);
+      });
 
+      // Show chickens and eggs area below farm
+      const chickensDiv = document.createElement('div');
+      chickensDiv.className = 'panel';
+      chickensDiv.style.gridColumn = '1/-1';
+      chickensDiv.style.marginTop = '6px';
+      chickensDiv.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>Toyuqlar: </strong>${state.chickens} &nbsp; <strong>Yumurtalar: </strong>${state.eggs}</div>
+        <div class="actions"><button class="small" onclick="collectEggs()">Yumurtaları toplama (pul üçün)</button></div>
+      </div>`;
+      farm.appendChild(chickensDiv);
+
+      save();
+    }
+
+    function fmtMs(ms){
+      if (ms<=0) return '0s';
+      const s = Math.ceil(ms/1000);
+      const h = Math.floor(s/3600);
+      const m = Math.floor((s%3600)/60);
+      const sec = s%60;
+      if (h>0) return `${h}h ${m}m`;
+      if (m>0) return `${m}m ${sec}s`;
+      return `${sec}s`;
+    }
+
+    // Actions
+    window.plantAt = function(idx){
+      if (state.slots[idx]) { alert('Bu slot doludur'); return; }
+      const plant = { plantedAt: Date.now(), watered: false, wateredAt: null };
+      state.slots[idx] = plant;
+      log('Slot #'+(idx+1)+' əkildi');
+      render();
+    }
+
+    window.removePlant = function(idx){
+      if (!state.slots[idx]) return; state.slots[idx] = null; log('Slot #'+(idx+1)+' silindi'); render();
+    }
+
+    window.waterAt = function(idx){
+      const slot = state.slots[idx]; if (!slot) return;
+      const now = Date.now();
+      if (slot.watered) { alert('Artıq suvarılıb'); return; }
+      const readyTime = slot.plantedAt + WATER_WAIT_HOURS*gameHourMs;
+      if (now < readyTime) { alert('Hələ suvarılmağa hazır deyil'); return; }
+      slot.watered = true; slot.wateredAt = now; log('Slot #'+(idx+1)+' suvarıldı'); render();
+    }
+
+    window.harvestAt = function(idx){
+      const slot = state.slots[idx]; if (!slot) return;
+      if (!slot.watered) { alert('Əvvəlcə suvarılmalıdır'); return; }
+      const ready = slot.wateredAt + HARVEST_AFTER_WATER_HOURS*gameHourMs;
+      if (Date.now() < ready) { alert('Hələ yığmaq olmaz'); return; }
+      // harvest yields 1 plant item that can be sold immediately
+      state.coins += 0; // harvesting itself doesn't give coins until sell or auto-sell
+      // We'll mark slot as harvested by deleting plant and increasing stock count -> but user wanted selling immediately removes from stock
+      // To keep simple: harvesting converts plant to 'harvested' and then selling removes it. But user wanted selling remove from stock. We'll implement harvest -> slot becomes empty and coin not added; user must press sell to get coin? But user wanted selling gives 1 coin and removes from stock. Ok we'll auto-add to inventory via incrementing a 'harvestedCount'? Simpler: When harvest, we increment 'harvestedCount' and free slot.
+      state.slots[idx] = null;
+      state.harvested = (state.harvested||0)+1;
+      log('Slot #'+(idx+1)+' məhsul yığıldı (1 ədəd) — satmaq üçün "Hamısını sat" düyməsindən istifadə et');
+      render();
+    }
+
+    window.sellPlant = function(idx){
+      const slot = state.slots[idx];
+      if (!slot) { alert('Bu slotda bitki yoxdur'); return; }
+      // Allow direct selling even if not harvested: user asked "satdiqda stokumdan bitgi silinsin ve coin balansima elave edilsin" so selling should remove plant and give 1 coin
+      state.slots[idx] = null;
+      state.coins += 1;
+      log('Slot #'+(idx+1)+' satıldı — +1 coin');
+      render();
+    }
+
+    document.getElementById('plantBtn').addEventListener('click', ()=>{
+      // find first empty slot
+      const idx = state.slots.findIndex(s=>!s);
+      if (idx === -1) { alert('Bütün slotlar doludur. Yeni slot almaq üçün mağazaya bax.'); return; }
+      plantAt(idx);
+    });
+
+    document.getElementById('waterAll').addEventListener('click', ()=>{
+      let count = 0;
+      state.slots.forEach((s,idx)=>{
+        if (s && !s.watered && Date.now() >= s.plantedAt + WATER_WAIT_HOURS*gameHourMs) { s.watered = true; s.wateredAt = Date.now(); count++; }
+      });
+      log('Hamısı suvarıldı: '+count+' ədəd'); render();
+    });
+
+    document.getElementById('harvestAll').addEventListener('click', ()=>{
+      let count = 0;
+      state.slots.forEach((s,idx)=>{
+        if (s && s.watered && Date.now() >= s.wateredAt + HARVEST_AFTER_WATER_HOURS*gameHourMs) { state.slots[idx] = null; state.harvested = (state.harvested||0)+1; count++; }
+      });
+      log('Hamısı yığıldı: '+count+' ədəd (satmaq üçün "Hamısını sat" düyməsi)'); render();
+    });
+
+    document.getElementById('sellAll').addEventListener('click', ()=>{
+      const harvested = state.harvested || 0;
+      if (harvested>0){ state.coins += harvested*1; log('Satış edildi: '+harvested+' məhsul — +'+(harvested*1)+' coin'); state.harvested=0; }
+      // also sell any direct plants? We'll only sell harvested here
+      render();
+    });
+
+    document.getElementById('sellEggs').addEventListener('click', ()=>{
+      if (state.eggs>0){ state.coins += state.eggs*5; log('Yumurtalar satıldı: '+state.eggs+' — +'+(state.eggs*5)+' coin'); state.eggs=0; render(); }
+      else alert('Yumurta yoxdur');
+    });
+
+    document.getElementById('buySlot').addEventListener('click', ()=>{
+      const cost = 100;
+      if (state.coins < cost){ alert('Kifayət qədər coin yoxdur'); return; }
+      state.coins -= cost; state.slotsCount += 1; state.slots.push(null); log('Yeni slot alındı (+1)'); render();
+    });
+
+    document.getElementById('buyChicken').addEventListener('click', ()=>{
+      const cost = 100000;
+      if (state.coins < cost){ alert('Kifayət qədər coin yoxdur (100000 tələb olunur)'); return; }
+      state.coins -= cost; state.chickens += 1; log('Toyuq alındı!'); render();
+    });
+
+    function collectEggs(){
+      if (state.eggs<=0) { alert('Yumurta yoxdur'); return; }
+      const gained = state.eggs*5; state.coins += gained; log('Yumurtalar satıldı: '+state.eggs+' — +'+gained+' coin'); state.eggs=0; render();
+    }
+
+    document.getElementById('toggleTime').addEventListener('click', ()=>{
+      if (timeMode === 'test'){ timeMode = 'real'; gameHourMs = REAL_GAME_HOUR; document.getElementById('toggleTime').textContent='Switch to Test'; log('Reallıq moduna keçdi (1 oyun saat = 1 real saat)'); }
+      else { timeMode = 'test'; gameHourMs = TEST_GAME_HOUR; document.getElementById('toggleTime').textContent='Switch to Real'; log('Test moduna keçdi (1 oyun saat = 60s)'); }
+      render();
+    });
+
+    document.getElementById('reset').addEventListener('click', ()=>{
+      if (!confirm('Saxlanmış məlumat silinəcək. Davam edilsin?')) return;
+      localStorage.removeItem(SAVE_KEY); location.reload();
+    });
+
+    // Tick: handle passive events, like chickens laying eggs every game hour
+    function tick(){
+      const now = Date.now();
+      // compute how many full game hours passed since lastTick
+      const last = state.lastTick || now;
+      const dt = now - last;
+      if (dt <=0) { state.lastTick = now; save(); return; }
+      const hoursPassed = Math.floor(dt / gameHourMs);
+      if (hoursPassed > 0) {
+        // chickens lay eggs: each chicken lays 1 egg per game hour
+        state.eggs = (state.eggs || 0) + state.chickens * hoursPassed;
+        if (state.chickens>0) log(state.chickens+' toyuq '+hoursPassed+' oyun saatında '+(state.chickens*hoursPassed)+' yumurta qoydu');
+        state.lastTick = last + hoursPassed*gameHourMs;
+        save();
+      }
+      // update UI timers
+      renderTimers();
+    }
+
+    function renderTimers(){
+      // Just update render without saving too often
+      const farm = document.getElementById('farm');
+      if (!farm) return; // not loaded yet
+      // We don't re-render whole DOM to avoid flicker; but for simplicity we'll re-render fully every second
+      render();
+    }
+
+    // Utility: sell harvested items automatically when harvesting? We left selling manual. But user asked selling removes from stock and adds coins. We implemented direct sell button per slot and sellAll for harvested.
+
+    // Start interval
+    load();
+    state.lastTick = state.lastTick || Date.now();
+    setInterval(tick, 1000);
+
+    // Expose for debug
+    window._state = state;
+  </script>
 </body>
 </html>
