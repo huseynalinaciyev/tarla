@@ -19,6 +19,7 @@ h1 {
     margin-bottom: 15px;
     font-weight: 600;
     color: #356635;
+    flex-wrap: wrap;
 }
 #farm-container {
     text-align: center;
@@ -77,6 +78,7 @@ button:hover {
     color: #3e6611;
     font-weight: 700;
     text-align: center;
+    margin-bottom: 20px;
 }
 .hidden {
     display: none;
@@ -115,4 +117,14 @@ button:hover {
         transform: translateY(20px) rotate(45deg);
         opacity: 0;
     }
+}
+#plot-info {
+    background: #f0f8ffcc;
+    border-radius: 10px;
+    padding: 10px;
+    width: 320px;
+    margin: 10px auto 0 auto;
+    font-size: 14px;
+    color: #2e4e2e;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
