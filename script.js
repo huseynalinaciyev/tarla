@@ -110,7 +110,6 @@ function updatePlotUI() {
     // Şəkli göstər (əgər yüklənməsə emoji)
     const url = plantImages[plot.plantStage];
     if (url) {
-        // Şəkil yüklənir
         const img = new Image();
         img.onload = () => {
             plantAreaEl.style.backgroundImage = `url(${url})`;
@@ -132,13 +131,13 @@ function updatePlotUI() {
     if (plot.plantStage === 'seed') {
         const waterLeft = nextWaterTime - now;
         plotInfoWatered.innerText = waterLeft > 0 ? `Suvarmaya qalan vaxt: ${formatTime(waterLeft)}` : 'Suvarma vaxtı çatıb!';
-        plotInfoPlanted.innerText = '—';
+        plotInfoPlanted.innerText = '—';  // Tarix göstərilmir
         plotInfoHarvest.innerText = 'Xeyr';
     } else if (plot.plantStage === 'growing') {
         const harvestLeft = harvestTime - now;
         plotInfoHarvest.innerText = harvestLeft > 0 ? `Yığım vaxtına qalan: ${formatTime(harvestLeft)}` : 'Hazırdır!';
-        plotInfoWatered.innerText = plot.lastWateredAt ? `Son suvarma: ${new Date(plot.lastWateredAt).toLocaleTimeString()}` : '—';
-        plotInfoPlanted.innerText = plot.plantedAt ? `Əkilmə vaxtı: ${new Date(plot.plantedAt).toLocaleTimeString()}` : '—';
+        plotInfoWatered.innerText = plot.lastWateredAt ? 'Son suvarma qeydi mövcuddur' : '—'; // Tarix deyil
+        plotInfoPlanted.innerText = '—'; // Tarix göstərilmir
     } else if (plot.plantStage === 'burning') {
         const burnLeft = burnTime - now;
         plotInfoPlanted.innerText = burnLeft > 0 ? `Yanmağa qalan vaxt: ${formatTime(burnLeft)}` : `Torpaq təmizlənir...`;
@@ -172,6 +171,7 @@ function plantCrop() {
     data.farmPlot.lastWateredAt = 0;
     data.farmPlot.harvestReady = false;
     updateUI();
+    plantAreaEl.innerText = '🌱'; // Yeni əkiləndə emoji göstər
     alert('Bitki əkildi! 1 saat ərzində suvarın.');
 }
 
