@@ -32,7 +32,6 @@ let data = {
     }
 };
 
-// LocalStorage açarı istifadəçi adı ilə
 const storageKey = `farmGame_${telegramUser}`;
 
 function loadData() {
@@ -59,8 +58,8 @@ const cowsEl = document.getElementById('cows');
 const plantAreaEl = document.getElementById('plant-area');
 
 const plotInfoStage = document.getElementById('plant-stage-text');
-const plotInfoPlanted = document.getElementById('planted-at');
-const plotInfoWatered = document.getElementById('last-watered-at');
+const wateringTimerEl = document.getElementById('watering-timer');
+const harvestTimerEl = document.getElementById('harvest-timer');
 const plotInfoHarvest = document.getElementById('harvest-ready');
 const wateringEl = document.getElementById('watering-animation');
 
@@ -80,7 +79,6 @@ function showWateringAnimation() {
     }, 3000);
 }
 
-// Qalan vaxt formatı (mm:ss)
 function formatTime(ms) {
     if (ms <= 0) return '00:00';
     const totalSeconds = Math.floor(ms / 1000);
@@ -93,21 +91,19 @@ function updatePlotUI() {
     const now = Date.now();
     const plot = data.farmPlot;
 
-    // Qalan vaxtları hesabla
     let nextWaterTime = 0;
     let harvestTime = 0;
     let burnTime = 0;
 
     if (plot.plantStage === 'seed') {
-        nextWaterTime = plot.plantedAt + 3600000; // 1 saat sonra suvarma
-        burnTime = plot.plantedAt + 7200000; // 2 saat sonra yanacaq
+        nextWaterTime = plot.plantedAt + 3600000;
+        burnTime = plot.plantedAt + 7200000;
     } else if (plot.plantStage === 'growing') {
-        harvestTime = plot.lastWateredAt + 18000000; // 5 saat sonra məhsul yığılır
+        harvestTime = plot.lastWateredAt + 18000000;
     } else if (plot.plantStage === 'burning') {
-        burnTime = plot.plantedAt + 9000000; // 2.5 saat sonra torpaq təmizlənir
+        burnTime = plot.plantedAt + 9000000;
     }
 
-    // Şəkli göstər (əgər yüklənməsə emoji)
     const url = plantImages[plot.plantStage];
     if (url) {
         const img = new Image();
@@ -125,27 +121,26 @@ function updatePlotUI() {
         plantAreaEl.innerText = plot.plantStage === 'burning' ? '🔥' : '🌿';
     }
 
-    // Status məlumatları
     plotInfoStage.innerText = plot.plantStage.charAt(0).toUpperCase() + plot.plantStage.slice(1);
 
     if (plot.plantStage === 'seed') {
         const waterLeft = nextWaterTime - now;
-        plotInfoWatered.innerText = waterLeft > 0 ? `Suvarmaya qalan vaxt: ${formatTime(waterLeft)}` : 'Suvarma vaxtı çatıb!';
-        plotInfoPlanted.innerText = '—';  // Tarix göstərilmir
+        wateringTimerEl.innerText = waterLeft > 0 ? formatTime(waterLeft) : 'Suvarma vaxtı çatıb!';
+        harvestTimerEl.innerText = '—';
         plotInfoHarvest.innerText = 'Xeyr';
     } else if (plot.plantStage === 'growing') {
         const harvestLeft = harvestTime - now;
-        plotInfoHarvest.innerText = harvestLeft > 0 ? `Yığım vaxtına qalan: ${formatTime(harvestLeft)}` : 'Hazırdır!';
-        plotInfoWatered.innerText = plot.lastWateredAt ? 'Son suvarma qeydi mövcuddur' : '—'; // Tarix deyil
-        plotInfoPlanted.innerText = '—'; // Tarix göstərilmir
+        harvestTimerEl.innerText = harvestLeft > 0 ? formatTime(harvestLeft) : 'Hazırdır!';
+        wateringTimerEl.innerText = plot.lastWateredAt ? 'Son suvarma qeydi mövcuddur' : '—';
+        plotInfoHarvest.innerText = harvestLeft > 0 ? 'Xeyr' : 'Bəli';
     } else if (plot.plantStage === 'burning') {
         const burnLeft = burnTime - now;
-        plotInfoPlanted.innerText = burnLeft > 0 ? `Yanmağa qalan vaxt: ${formatTime(burnLeft)}` : 'Torpaq təmizlənir...';
-        plotInfoWatered.innerText = '—';
+        wateringTimerEl.innerText = '—';
+        harvestTimerEl.innerText = '—';
         plotInfoHarvest.innerText = 'Xeyr';
     } else {
-        plotInfoPlanted.innerText = '—';
-        plotInfoWatered.innerText = '—';
+        wateringTimerEl.innerText = '—';
+        harvestTimerEl.innerText = '—';
         plotInfoHarvest.innerText = 'Xeyr';
     }
 }
@@ -171,7 +166,7 @@ function plantCrop() {
     data.farmPlot.lastWateredAt = 0;
     data.farmPlot.harvestReady = false;
     updateUI();
-    plantAreaEl.innerText = '🌱'; // Yeni əkiləndə emoji göstər
+    plantAreaEl.innerText = '🌱';
     alert('Bitki əkildi! 1 saat ərzində suvarın.');
 }
 
@@ -180,7 +175,7 @@ function waterCrop() {
         alert('Əvvəlcə bitki əkilməlidir.');
         return;
     }
-    let now = Date.now();
+    const now = Date.now();
     if (data.farmPlot.lastWateredAt && now - data.farmPlot.lastWateredAt < 3600000) {
         alert('Suvarma 1 saatda 1 dəfə mümkündür.');
         return;
@@ -263,7 +258,7 @@ function sellMilk() {
     alert('Süd satıldı!');
 }
 
-// Saatlıq avtomatik əməliyyatlar (1 dəqiqəyə endirdim test üçün - dəyişdirə bilərsən)
+// Avtomatik əməliyyatlar hər 1 dəqiqədə (60,000 ms)
 setInterval(() => {
     const now = Date.now();
 
@@ -295,27 +290,27 @@ setInterval(() => {
         }
     }
 
-    // Heyvanlardan məhsul əlavə et
     if (data.chickens > 0) data.eggs += data.chickens;
     if (data.cows > 0) data.milk += data.cows;
 
     updateUI();
 }, 60000);
 
-// Hər saniyə qalan vaxtı yenilə (real vaxt effekt)
 setInterval(() => {
     updatePlotUI();
 }, 1000);
 
-// Düymələri bağla
-document.getElementById('btn-plant').addEventListener('click', plantCrop);
-document.getElementById('btn-water').addEventListener('click', waterCrop);
-document.getElementById('btn-harvest').addEventListener('click', harvestCrop);
-document.getElementById('btn-sell').addEventListener('click', sellProduct);
-document.getElementById('btn-buy-chicken').addEventListener('click', buyChicken);
-document.getElementById('btn-buy-cow').addEventListener('click', buyCow);
-document.getElementById('btn-sell-eggs').addEventListener('click', sellEggs);
-document.getElementById('btn-sell-milk').addEventListener('click', sellMilk);
+window.addEventListener('load', () => {
+    loadData();
+    updateUI();
 
-loadData();
-updateUI();
+    // Event listenerləri bağla
+    document.getElementById('btn-plant').addEventListener('click', plantCrop);
+    document.getElementById('btn-water').addEventListener('click', waterCrop);
+    document.getElementById('btn-harvest').addEventListener('click', harvestCrop);
+    document.getElementById('btn-sell').addEventListener('click', sellProduct);
+    document.getElementById('btn-buy-chicken').addEventListener('click', buyChicken);
+    document.getElementById('btn-buy-cow').addEventListener('click', buyCow);
+    document.getElementById('btn-sell-eggs').addEventListener('click', sellEggs);
+    document.getElementById('btn-sell-milk').addEventListener('click', sellMilk);
+});
