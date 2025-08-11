@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ferma Oyunu - Genişləndirilmiş</title>
+<title>Ferma Oyunu - Torpaq Sahəsi</title>
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>🌿 Genişləndirilmiş Ferma Oyunu 🌿</h1>
+    <h1>🌿 Ferma Oyunu - Torpaq Sahəsi ilə 🌿</h1>
     <div class="status-bar">
         <div class="status-item">💰 Pul: <span id="coins">0</span></div>
         <div class="status-item">🌱 Məhsul: <span id="stock">0</span></div>
@@ -16,7 +16,9 @@
     </div>
     <div id="farm-container">
         <div id="farm-plot" class="plot-empty">
+            <div id="soil"></div>
             <div id="plant-area"></div>
+            <div id="watering-animation" class="hidden"></div>
         </div>
     </div>
     <div class="buttons">
