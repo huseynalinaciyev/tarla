@@ -263,7 +263,7 @@ function sellMilk() {
     alert('Süd satıldı!');
 }
 
-// Saatlıq avtomatik əməliyyatlar
+// Saatlıq avtomatik əməliyyatlar (1 dəqiqəyə endirdim test üçün - dəyişdirə bilərsən)
 setInterval(() => {
     const now = Date.now();
 
@@ -285,7 +285,7 @@ setInterval(() => {
     }
 
     if (data.farmPlot.plantStage === 'burning') {
-        if (data.farmPlot.plantedAt && now - data.farmPlot.plantedAt > 4200000) {
+        if (data.farmPlot.plantedAt && now - data.farmPlot.plantedAt > 9000000) {
             data.farmPlot.plantStage = 'empty';
             data.farmPlot.plantedAt = 0;
             data.farmPlot.lastWateredAt = 0;
@@ -306,6 +306,16 @@ setInterval(() => {
 setInterval(() => {
     updatePlotUI();
 }, 1000);
+
+// Düymələri bağla
+document.getElementById('btn-plant').addEventListener('click', plantCrop);
+document.getElementById('btn-water').addEventListener('click', waterCrop);
+document.getElementById('btn-harvest').addEventListener('click', harvestCrop);
+document.getElementById('btn-sell').addEventListener('click', sellProduct);
+document.getElementById('btn-buy-chicken').addEventListener('click', buyChicken);
+document.getElementById('btn-buy-cow').addEventListener('click', buyCow);
+document.getElementById('btn-sell-eggs').addEventListener('click', sellEggs);
+document.getElementById('btn-sell-milk').addEventListener('click', sellMilk);
 
 loadData();
 updateUI();
