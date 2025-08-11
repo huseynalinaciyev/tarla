@@ -1,74 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="az">
 <head>
 <meta charset="UTF-8">
 <title>Ferma Oyunu</title>
-<style>
-    body {
-        background: linear-gradient(to top, #7ed957, #1ecbe1);
-        font-family: 'Comic Sans MS', cursive, sans-serif;
-        text-align: center;
-        padding: 20px;
-        animation: fadeIn 1.5s ease-in-out;
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    h1 {
-        font-size: 40px;
-        animation: textPulse 2s infinite;
-    }
-    @keyframes textPulse {
-        0%, 100% { color: #fff; text-shadow: 0 0 10px #ff0; }
-        50% { color: #ff0; text-shadow: 0 0 20px #fff; }
-    }
-    #farm {
-        display: grid;
-        grid-template-columns: repeat(5, 100px);
-        grid-gap: 10px;
-        justify-content: center;
-        margin-top: 20px;
-    }
-    .plot {
-        width: 100px;
-        height: 100px;
-        border: 2px solid #654321;
-        background: #8B4513;
-        border-radius: 5px;
-        position: relative;
-        overflow: hidden;
-        box-shadow: inset 0 -10px 15px rgba(0,0,0,0.3);
-        transition: transform 0.3s;
-    }
-    .plot:hover {
-        transform: scale(1.05);
-    }
-    .plant {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        height: 0;
-        transition: height 1.5s ease-in-out;
-    }
-    .planted { background: linear-gradient(to top, #228B22, #32CD32); }
-    .watered { background: linear-gradient(to top, #1d7f1d, #43d943); }
-    button {
-        padding: 10px 15px;
-        margin: 5px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        background: #ffcc00;
-        font-weight: bold;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        transition: background 0.3s, transform 0.2s;
-    }
-    button:hover {
-        background: #ffaa00;
-        transform: scale(1.05);
-    }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>🌾 Ferma Oyunu 🌾</h1>
@@ -84,99 +19,7 @@
         <button onclick="sellEggs()">Yumurta Sat</button>
     </div>
     <div id="farm"></div>
-<script>
-    let coins = 0;
-    let stock = 0;
-    let eggs = 0;
-    let farm = [];
-    let chickens = 0;
-    const farmElement = document.getElementById('farm');
 
-    // Ferma yerləri
-    for (let i = 0; i < 10; i++) {
-        farm.push({ stage: 'empty', timer: 0 });
-        const plot = document.createElement('div');
-        plot.className = 'plot';
-        farmElement.appendChild(plot);
-    }
-
-    function updateUI() {
-        document.getElementById('coins').innerText = `💰 Pul: ${coins}`;
-        document.getElementById('stock').innerText = `🌱 Məhsul: ${stock}`;
-        document.getElementById('eggs').innerText = `🥚 Yumurta: ${eggs}`;
-        const plots = document.querySelectorAll('.plot');
-        plots.forEach((plot, i) => {
-            plot.innerHTML = '';
-            if (farm[i].stage === 'planted') {
-                let plant = document.createElement('div');
-                plant.className = 'plant planted';
-                plant.style.height = '40%';
-                plot.appendChild(plant);
-            } else if (farm[i].stage === 'watered') {
-                let plant = document.createElement('div');
-                plant.className = 'plant watered';
-                plant.style.height = '80%';
-                plot.appendChild(plant);
-            }
-        });
-    }
-
-    function plantCrop() {
-        let plot = farm.find(p => p.stage === 'empty');
-        if (plot) {
-            plot.stage = 'planted';
-            plot.timer = Date.now();
-            updateUI();
-        }
-    }
-
-    function waterCrops() {
-        farm.forEach(p => {
-            if (p.stage === 'planted' && Date.now() - p.timer >= 60000) {
-                p.stage = 'watered';
-                p.timer = Date.now();
-            }
-        });
-        updateUI();
-    }
-
-    function harvestCrops() {
-        farm.forEach(p => {
-            if (p.stage === 'watered' && Date.now() - p.timer >= 120000) {
-                p.stage = 'empty';
-                stock++;
-            }
-        });
-        updateUI();
-    }
-
-    function sellCrops() {
-        coins += stock;
-        stock = 0;
-        updateUI();
-    }
-
-    function buyChicken() {
-        if (coins >= 100000) {
-            coins -= 100000;
-            chickens++;
-        }
-        updateUI();
-    }
-
-    function sellEggs() {
-        coins += eggs * 5;
-        eggs = 0;
-        updateUI();
-    }
-
-    // Toyuqlar hər 1 dəqiqədə yumurta verir
-    setInterval(() => {
-        eggs += chickens;
-        updateUI();
-    }, 60000);
-
-    updateUI();
-</script>
+<script src="script.js"></script>
 </body>
 </html>
