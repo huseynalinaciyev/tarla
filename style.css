@@ -50,44 +50,104 @@ h1 {
 }
 
 #farm-plot {
-    width: 140px;
-    height: 140px;
-    border-radius: 20px;
-    background: #6c4f2d;
-    box-shadow:
-      inset 0 5px 10px #a87f45,
-      0 8px 6px rgba(0,0,0,0.3);
+    width: 160px;
+    height: 160px;
+    border-radius: 25px;
     position: relative;
     cursor: pointer;
+    box-shadow:
+      inset 0 8px 18px #654321,
+      0 8px 15px rgba(0,0,0,0.3);
+    background: #654321;
+    overflow: visible;
     transition: background-color 0.5s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
-.plot-empty {
-    background: #6c4f2d;
+.plot-empty #soil {
+    background: linear-gradient(145deg, #6c4f2d, #8b5e2b);
+    box-shadow: inset 0 4px 8px #a87f45;
 }
 
-.plot-burning {
+.plot-burning #soil {
     background: #b3371e;
     box-shadow:
-      inset 0 5px 15px #ff3d00,
-      0 0 25px #ff2a00;
+      inset 0 5px 20px #ff3d00,
+      0 0 30px #ff2a00;
     animation: burnGlow 1s infinite alternate;
 }
 
 @keyframes burnGlow {
-    from { box-shadow: inset 0 5px 15px #ff3d00, 0 0 25px #ff2a00; }
-    to { box-shadow: inset 0 5px 25px #ff6f4a, 0 0 35px #ff4623; }
+    from { box-shadow: inset 0 5px 20px #ff3d00, 0 0 30px #ff2a00; }
+    to { box-shadow: inset 0 5px 30px #ff6f4a, 0 0 40px #ff4623; }
+}
+
+#soil {
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    border-radius: 20px;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(145deg, #6c4f2d, #8b5e2b);
+    box-shadow: inset 0 4px 8px #a87f45;
+    z-index: 1;
 }
 
 #plant-area {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
     width: 100px;
     height: 100px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center bottom;
+    z-index: 2;
+    image-rendering: pixelated;
+}
+
+#watering-animation {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.hidden {
+    display: none;
+}
+
+.droplet {
+    width: 10px;
+    height: 10px;
+    background: #00bfff;
+    border-radius: 50% 50% 50% 0;
+    position: absolute;
+    animation: drip 1.2s linear infinite;
+    opacity: 0.7;
+}
+
+.droplet:nth-child(1) { left: 0; animation-delay: 0s; }
+.droplet:nth-child(2) { left: 15px; animation-delay: 0.4s; }
+.droplet:nth-child(3) { left: 30px; animation-delay: 0.8s; }
+
+@keyframes drip {
+    0% {
+        transform: translateY(0) rotate(45deg);
+        opacity: 0.7;
+    }
+    80% {
+        opacity: 0.7;
+    }
+    100% {
+        transform: translateY(20px) rotate(45deg);
+        opacity: 0;
+    }
 }
 
 .buttons {
