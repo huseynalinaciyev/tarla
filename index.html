@@ -8,41 +8,41 @@
 </head>
 <body>
     <h1>🌾 Telegram Ferma Oyunu</h1>
-    <p id="welcome" class="welcome-text">Xoş gəlmisiniz!</p>
+    <p id="welcome" class="welcome-text" aria-live="polite">Xoş gəlmisiniz!</p>
 
-    <div class="status-bar">
+    <div class="status-bar" role="region" aria-label="Oyun statusu">
         <div>💰 Pul: <span id="coins">0</span></div>
         <div>🌱 Məhsul: <span id="stock">0</span></div>
         <div>🥚 Yumurtalar: <span id="eggs">0</span></div>
         <div>🥛 Süd: <span id="milk">0</span></div>
     </div>
 
-    <div id="farm-container">
-        <div id="farm-plot" class="plot-empty" onclick="showPlotInfo()" aria-label="Ferma ərazisi - klikləyin">
+    <main id="farm-container" role="main" aria-label="Ferma oyun sahəsi">
+        <div id="farm-plot" class="plot-empty" onclick="showPlotInfo()" aria-label="Ferma ərazisi - klikləyin" tabindex="0" onkeydown="if(event.key==='Enter') showPlotInfo()">
             <div id="soil"></div>
-            <div id="plant-area" role="img" aria-live="polite"></div>
+            <div id="plant-area" role="img" aria-live="polite" aria-label="Bitkinin vəziyyəti"></div>
             <div id="watering-animation" class="hidden" aria-hidden="true"></div>
         </div>
-        <div id="plot-info" role="region" aria-live="polite" aria-atomic="true">
+        <section id="plot-info" role="region" aria-live="polite" aria-atomic="true" aria-label="Bitki məlumatları">
             <p><strong>Bitki vəziyyəti:</strong> <span id="plant-stage-text">Yoxdur</span></p>
             <p><strong>Əkilmə vaxtı:</strong> <span id="planted-at">—</span></p>
             <p><strong>Son suvarma vaxtı:</strong> <span id="last-watered-at">—</span></p>
             <p><strong>Məhsul yığılmağa hazırdır:</strong> <span id="harvest-ready">Xeyr</span></p>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <div class="buttons" role="group" aria-label="Oyunun idarə düymələri">
-        <button onclick="plantCrop()" aria-describedby="plantDesc">Bitki ək</button>
-        <button onclick="waterCrop()" aria-describedby="waterDesc">Suvar</button>
-        <button onclick="harvestCrop()" aria-describedby="harvestDesc">Məhsul yığ</button>
-        <button onclick="sellProduct()" aria-describedby="sellProdDesc">Məhsul sat</button>
-        <button onclick="buyChicken()" aria-describedby="buyChickenDesc">Toyuq al (100000 coin)</button>
-        <button onclick="buyCow()" aria-describedby="buyCowDesc">İnək al (200000 coin)</button>
-        <button onclick="sellEggs()" aria-describedby="sellEggsDesc">Yumurtaları sat</button>
-        <button onclick="sellMilk()" aria-describedby="sellMilkDesc">Südü sat</button>
+        <button type="button" onclick="plantCrop()" aria-describedby="plantDesc">Bitki ək</button>
+        <button type="button" onclick="waterCrop()" aria-describedby="waterDesc">Suvar</button>
+        <button type="button" onclick="harvestCrop()" aria-describedby="harvestDesc">Məhsul yığ</button>
+        <button type="button" onclick="sellProduct()" aria-describedby="sellProdDesc">Məhsul sat</button>
+        <button type="button" onclick="buyChicken()" aria-describedby="buyChickenDesc">Toyuq al (100000 coin)</button>
+        <button type="button" onclick="buyCow()" aria-describedby="buyCowDesc">İnək al (200000 coin)</button>
+        <button type="button" onclick="sellEggs()" aria-describedby="sellEggsDesc">Yumurtaları sat</button>
+        <button type="button" onclick="sellMilk()" aria-describedby="sellMilkDesc">Südü sat</button>
     </div>
 
-    <div class="animals-status" aria-live="polite">
+    <div class="animals-status" role="region" aria-live="polite" aria-label="Heyvanların sayı">
         <p>🐔 Toyuqlar: <span id="chickens">0</span></p>
         <p>🐄 İnəklər: <span id="cows">0</span></p>
     </div>
