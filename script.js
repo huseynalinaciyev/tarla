@@ -1,9 +1,9 @@
 // URL-dən user adı oxu
 const urlParams = new URLSearchParams(window.location.search);
-const telegramUser = urlParams.get('user') || 'Bağban';
+const telegramUser = urlParams.get('user') || 'Qonaq';
 
 const welcomeEl = document.getElementById('welcome');
-welcomeEl.innerText = `Xoş gəlmisiniz, ${telegramUser} 👨‍🌾!`;
+welcomeEl.innerText = `Xoş gəlmisiniz, @${telegramUser}!`;
 
 // Bitki şəkilləri (GitHub hosting)
 const plantImages = {
@@ -60,9 +60,8 @@ const plantAreaEl = document.getElementById('plant-area');
 
 const plotInfoStage = document.getElementById('plant-stage-text');
 const plotInfoPlanted = document.getElementById('planted-at');
-const plotInfoWatered = document.getElementById('watering-timer');
-const plotInfoHarvest = document.getElementById('harvest-timer');
-const harvestReadyEl = document.getElementById('harvest-ready');
+const plotInfoWatered = document.getElementById('last-watered-at');
+const plotInfoHarvest = document.getElementById('harvest-ready');
 const wateringEl = document.getElementById('watering-animation');
 
 function showWateringAnimation() {
@@ -131,23 +130,23 @@ function updatePlotUI() {
 
     if (plot.plantStage === 'seed') {
         const waterLeft = nextWaterTime - now;
-        plotInfoWatered.innerHTML = waterLeft > 0 ? `💧 ${formatTime(waterLeft)}` : 'Suvarma vaxtı çatıb!';
-        plotInfoHarvest.innerHTML = '—';
-        harvestReadyEl.innerText = 'Xeyr';
+        plotInfoWatered.innerText = waterLeft > 0 ? `Suvarmaya qalan vaxt: ${formatTime(waterLeft)}` : 'Suvarma vaxtı çatıb!';
+        plotInfoPlanted.innerText = '—';  // Tarix göstərilmir
+        plotInfoHarvest.innerText = 'Xeyr';
     } else if (plot.plantStage === 'growing') {
         const harvestLeft = harvestTime - now;
-        plotInfoHarvest.innerHTML = harvestLeft > 0 ? `💰 ${formatTime(harvestLeft)}` : 'Hazırdır!';
-        plotInfoWatered.innerHTML = '—';
-        harvestReadyEl.innerText = harvestLeft > 0 ? 'Xeyr' : 'Bəli';
+        plotInfoHarvest.innerText = harvestLeft > 0 ? `Yığım vaxtına qalan: ${formatTime(harvestLeft)}` : 'Hazırdır!';
+        plotInfoWatered.innerText = plot.lastWateredAt ? 'Son suvarma qeydi mövcuddur' : '—'; // Tarix deyil
+        plotInfoPlanted.innerText = '—'; // Tarix göstərilmir
     } else if (plot.plantStage === 'burning') {
         const burnLeft = burnTime - now;
-        plotInfoWatered.innerHTML = '—';
-        plotInfoHarvest.innerHTML = burnLeft > 0 ? `🔥 ${formatTime(burnLeft)}` : 'Torpaq təmizlənir...';
-        harvestReadyEl.innerText = 'Xeyr';
+        plotInfoPlanted.innerText = burnLeft > 0 ? `Yanmağa qalan vaxt: ${formatTime(burnLeft)}` : 'Torpaq təmizlənir...';
+        plotInfoWatered.innerText = '—';
+        plotInfoHarvest.innerText = 'Xeyr';
     } else {
-        plotInfoWatered.innerHTML = '—';
-        plotInfoHarvest.innerHTML = '—';
-        harvestReadyEl.innerText = 'Xeyr';
+        plotInfoPlanted.innerText = '—';
+        plotInfoWatered.innerText = '—';
+        plotInfoHarvest.innerText = 'Xeyr';
     }
 }
 
@@ -243,4 +242,70 @@ function buyCow() {
 }
 
 function sellEggs() {
-    if (data.eggs
+    if (data.eggs <= 0) {
+        alert('Satacaq yumurta yoxdur.');
+        return;
+    }
+    data.coins += data.eggs * EGG_SELL_PRICE;
+    data.eggs = 0;
+    updateUI();
+    alert('Yumurtalar satıldı!');
+}
+
+function sellMilk() {
+    if (data.milk <= 0) {
+        alert('Satacaq süd yoxdur.');
+        return;
+    }
+    data.coins += data.milk * MILK_SELL_PRICE;
+    data.milk = 0;
+    updateUI();
+    alert('Süd satıldı!');
+}
+
+// Saatlıq avtomatik əməliyyatlar
+setInterval(() => {
+    const now = Date.now();
+
+    if (data.farmPlot.plantStage === 'seed') {
+        if (data.farmPlot.plantedAt && now - data.farmPlot.plantedAt > 3600000) {
+            data.farmPlot.plantStage = 'burning';
+            updateUI();
+            alert('Bitki suvarılmadığı üçün yandı!');
+        }
+    }
+
+    if (data.farmPlot.plantStage === 'growing') {
+        if (data.farmPlot.lastWateredAt && now - data.farmPlot.lastWateredAt > 18000000) {
+            data.farmPlot.plantStage = 'mature';
+            data.farmPlot.harvestReady = true;
+            updateUI();
+            alert('Bitki yetişdi! Məhsulu yığa bilərsiniz.');
+        }
+    }
+
+    if (data.farmPlot.plantStage === 'burning') {
+        if (data.farmPlot.plantedAt && now - data.farmPlot.plantedAt > 4200000) {
+            data.farmPlot.plantStage = 'empty';
+            data.farmPlot.plantedAt = 0;
+            data.farmPlot.lastWateredAt = 0;
+            data.farmPlot.harvestReady = false;
+            updateUI();
+            alert('Yanmış bitki torpaqdan təmizləndi.');
+        }
+    }
+
+    // Heyvanlardan məhsul əlavə et
+    if (data.chickens > 0) data.eggs += data.chickens;
+    if (data.cows > 0) data.milk += data.cows;
+
+    updateUI();
+}, 60000);
+
+// Hər saniyə qalan vaxtı yenilə (real vaxt effekt)
+setInterval(() => {
+    updatePlotUI();
+}, 1000);
+
+loadData();
+updateUI();
