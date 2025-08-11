@@ -3,16 +3,17 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ferma Oyunu - Torpaq Sahəsi</title>
+<title>Telegram Ferma Oyunu</title>
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>🌿 Ferma Oyunu - Torpaq Sahəsi ilə 🌿</h1>
+    <h1>🌾 Telegram Ferma Oyunu</h1>
+    <p id="welcome"></p>
     <div class="status-bar">
-        <div class="status-item">💰 Pul: <span id="coins">0</span></div>
-        <div class="status-item">🌱 Məhsul: <span id="stock">0</span></div>
-        <div class="status-item">🥚 Yumurtalar: <span id="eggs">0</span></div>
-        <div class="status-item">🥛 Süd: <span id="milk">0</span></div>
+        <div>💰 Pul: <span id="coins">0</span></div>
+        <div>🌱 Məhsul: <span id="stock">0</span></div>
+        <div>🥚 Yumurtalar: <span id="eggs">0</span></div>
+        <div>🥛 Süd: <span id="milk">0</span></div>
     </div>
     <div id="farm-container">
         <div id="farm-plot" class="plot-empty">
@@ -25,17 +26,16 @@
         <button onclick="plantCrop()">Bitki ək</button>
         <button onclick="waterCrop()">Suvar</button>
         <button onclick="harvestCrop()">Məhsul yığ</button>
-        <button onclick="sellProduct()">Məhsul sat (1 coin/ədəd)</button>
+        <button onclick="sellProduct()">Məhsul sat</button>
         <button onclick="buyChicken()">Toyuq al (100000 coin)</button>
         <button onclick="buyCow()">İnək al (200000 coin)</button>
-        <button onclick="sellEggs()">Yumurtaları sat (5 coin/ədəd)</button>
-        <button onclick="sellMilk()">Südü sat (7 coin/ədəd)</button>
+        <button onclick="sellEggs()">Yumurtaları sat</button>
+        <button onclick="sellMilk()">Südü sat</button>
     </div>
     <div class="animals-status">
         <p>🐔 Toyuqlar: <span id="chickens">0</span></p>
         <p>🐄 İnəklər: <span id="cows">0</span></p>
     </div>
-
 <script src="script.js"></script>
 </body>
 </html>
