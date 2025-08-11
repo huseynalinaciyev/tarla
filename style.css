@@ -61,6 +61,9 @@ h1 {
     background-repeat: no-repeat;
     background-position: center bottom;
     z-index: 2;
+    font-size: 5rem;
+    line-height: 60vw; /* emoji orta hizalama üçün */
+    user-select: none;
 }
 .buttons {
     text-align: center;
