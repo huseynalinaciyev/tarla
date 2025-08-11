@@ -7,59 +7,60 @@
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>🌾 Telegram Ferma Oyunu</h1>
-    <p id="welcome" class="welcome-text">Xoş gəlmisiniz, Bağban! 👨‍🌾</p>
+  <h1>🌾 Telegram Ferma Oyunu</h1>
+  
+  <p id="welcome" class="welcome-text" aria-live="polite">Xoş gəlmisiniz, Bağban! 👨‍🌾</p>
 
-    <div class="status-bar">
-        <div>💰 Pul: <span id="coins">0</span></div>
-        <div>🌱 Məhsul: <span id="stock">0</span></div>
-        <div>🥚 Yumurta: <span id="eggs">0</span></div>
-        <div>🥛 Süd: <span id="milk">0</span></div>
+  <div class="status-bar" role="region" aria-label="Status məlumatları">
+    <div>💰 Pul: <span id="coins">0</span></div>
+    <div>🌱 Məhsul: <span id="stock">0</span></div>
+    <div>🥚 Yumurta: <span id="eggs">0</span></div>
+    <div>🥛 Süd: <span id="milk">0</span></div>
+  </div>
+
+  <div id="farm-container" role="region" aria-label="Ferma sahəsi">
+    <div id="farm-plot" class="plot-empty" tabindex="0" aria-label="Ferma ərazisi. Bitki vəziyyətini görmək üçün enter basın." onkeydown="if(event.key==='Enter'){showPlotInfo()}" onclick="showPlotInfo()">
+      <div id="soil"></div>
+      <div id="plant-area" role="img" aria-live="polite" aria-label="Bitkinin şəkli və vəziyyəti"></div>
+      <div id="watering-animation" class="hidden" aria-hidden="true"></div>
     </div>
 
-    <div id="farm-container">
-        <div id="farm-plot" class="plot-empty" onclick="showPlotInfo()" aria-label="Ferma ərazisi - klikləyin">
-            <div id="soil"></div>
-            <div id="plant-area" role="img" aria-live="polite"></div>
-            <div id="watering-animation" class="hidden" aria-hidden="true"></div>
-        </div>
-        <div id="plot-info" role="region" aria-live="polite" aria-atomic="true">
-            <p><strong>Bitki vəziyyəti:</strong> <span id="plant-stage-text">Yoxdur</span></p>
-            <!-- Tarix əvəzinə vaxt qalmaları -->
-            <p><strong>Suvarmağa qalan vaxt:</strong> <span id="watering-timer">—</span></p>
-            <p><strong>Məhsulun yetişməsinə qalan vaxt:</strong> <span id="harvest-timer">—</span></p>
-            <p><strong>Məhsul yığılmağa hazırdır:</strong> <span id="harvest-ready">Xeyr</span></p>
-        </div>
+    <div id="plot-info" role="region" aria-live="polite" aria-atomic="true" tabindex="0" style="margin-top: 15px; border: 1px solid #ccc; border-radius: 8px; padding: 10px; background: #f9f9f9;">
+      <p><strong>Bitki vəziyyəti:</strong> <span id="plant-stage-text">Yoxdur</span></p>
+      <p><strong>Suvarmağa qalan vaxt:</strong> <span id="watering-timer">—</span></p>
+      <p><strong>Məhsulun yetişməsinə qalan vaxt:</strong> <span id="harvest-timer">—</span></p>
+      <p><strong>Məhsul yığılmağa hazırdır:</strong> <span id="harvest-ready">Xeyr</span></p>
     </div>
+  </div>
 
-    <div class="buttons" role="group" aria-label="Oyunun idarə düymələri">
-        <button onclick="plantCrop()" aria-describedby="plantDesc">Bitki ək</button>
-        <button onclick="waterCrop()" aria-describedby="waterDesc">Suvar</button>
-        <button onclick="harvestCrop()" aria-describedby="harvestDesc">Məhsul yığ</button>
-        <button onclick="sellProduct()" aria-describedby="sellProdDesc">Məhsul sat</button>
-        <button onclick="buyChicken()" aria-describedby="buyChickenDesc">Toyuq al (100000 coin)</button>
-        <button onclick="buyCow()" aria-describedby="buyCowDesc">İnək al (200000 coin)</button>
-        <button onclick="sellEggs()" aria-describedby="sellEggsDesc">Yumurtaları sat</button>
-        <button onclick="sellMilk()" aria-describedby="sellMilkDesc">Südü sat</button>
-    </div>
+  <div class="buttons" role="group" aria-label="Oyunun idarə düymələri" style="margin-top: 20px; text-align:center;">
+    <button onclick="plantCrop()" aria-describedby="plantDesc">Bitki ək</button>
+    <button onclick="waterCrop()" aria-describedby="waterDesc">Suvar</button>
+    <button onclick="harvestCrop()" aria-describedby="harvestDesc">Məhsul yığ</button>
+    <button onclick="sellProduct()" aria-describedby="sellProdDesc">Məhsul sat</button>
+    <button onclick="buyChicken()" aria-describedby="buyChickenDesc">Toyuq al (100000 coin)</button>
+    <button onclick="buyCow()" aria-describedby="buyCowDesc">İnək al (200000 coin)</button>
+    <button onclick="sellEggs()" aria-describedby="sellEggsDesc">Yumurtaları sat</button>
+    <button onclick="sellMilk()" aria-describedby="sellMilkDesc">Südü sat</button>
+  </div>
 
-    <div class="animals-status" aria-live="polite">
-        <p>🐔 Toyuqlar: <span id="chickens">0</span></p>
-        <p>🐄 İnəklər: <span id="cows">0</span></p>
-    </div>
+  <div class="animals-status" aria-live="polite" style="margin-top: 20px; text-align:center;">
+    <p>🐔 Toyuqlar: <span id="chickens">0</span></p>
+    <p>🐄 İnəklər: <span id="cows">0</span></p>
+  </div>
 
-    <!-- A11y (Accessibility) təsviri -->
-    <div style="display:none;">
-        <p id="plantDesc">Ərazidə bitki əkir.</p>
-        <p id="waterDesc">Bitkini suvarır.</p>
-        <p id="harvestDesc">Yetişmiş məhsulu yığır.</p>
-        <p id="sellProdDesc">Məhsulu bazarda satır.</p>
-        <p id="buyChickenDesc">100000 coin qarşılığında toyuq alır.</p>
-        <p id="buyCowDesc">200000 coin qarşılığında inək alır.</p>
-        <p id="sellEggsDesc">Yumurtaları bazarda satır.</p>
-        <p id="sellMilkDesc">Südü bazarda satır.</p>
-    </div>
+  <!-- Accessibility təsvirləri -->
+  <div style="display:none;">
+    <p id="plantDesc">Ərazidə bitki əkir.</p>
+    <p id="waterDesc">Bitkini suvarır.</p>
+    <p id="harvestDesc">Yetişmiş məhsulu yığır.</p>
+    <p id="sellProdDesc">Məhsulu bazarda satır.</p>
+    <p id="buyChickenDesc">100000 coin qarşılığında toyuq alır.</p>
+    <p id="buyCowDesc">200000 coin qarşılığında inək alır.</p>
+    <p id="sellEggsDesc">Yumurtaları bazarda satır.</p>
+    <p id="sellMilkDesc">Südü bazarda satır.</p>
+  </div>
 
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
