@@ -1,3 +1,4 @@
+/* Ümumi bədən və fon */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     max-width: 480px;
@@ -10,13 +11,15 @@ body {
     user-select: none;
 }
 
+/* Başlıq */
 h1 {
     text-align: center;
     color: #2f4f2f;
-    margin-bottom: 12px;
+    margin-bottom: 15px;
     font-size: 1.9rem;
 }
 
+/* Status paneli */
 .status-bar {
     display: flex;
     justify-content: space-around;
@@ -28,81 +31,47 @@ h1 {
     gap: 12px;
 }
 
-.farm-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-bottom: 15px;
+/* Tək torpaq sahəsi */
+#farm-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
-.farm-plot {
-    width: 100%;
-    padding-top: 100%;
+#farm-plot {
+    width: 200px;
+    height: 200px;
     position: relative;
     border-radius: 20px;
-    background: linear-gradient(145deg,#7f5a2a,#9a6f34);
+    background: linear-gradient(145deg, #7f5a2a, #9a6f34);
     box-shadow: inset 0 6px 18px #6f4e1e;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2.5rem;
-    color: #2f4f2f;
-    text-shadow: 0 0 4px #b0d4a7;
+    font-size: 3rem;
+    transition: transform 0.2s ease;
 }
 
-.buttons {
-    text-align: center;
-    margin-bottom: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-}
-
-button {
-    background: #6b8e23;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 12px 18px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-button:hover, button:focus {
-    background: #9acd32;
-    outline: none;
-    box-shadow: 0 0 8px #9acd32;
+#farm-plot:hover {
     transform: scale(1.05);
 }
 
-.animals-status {
-    text-align: center;
-    font-weight: 700;
-    color: #3e6611;
-    margin-bottom: 20px;
+/* Bitki sahəsi */
+#plant-area {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
 }
 
-#plot-info {
-    background: #f0f8ffcc;
-    border-radius: 10px;
-    padding: 12px 15px;
-    font-size: 14.5px;
-    color: #2e4e2e;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin-bottom: 15px;
-}
-
-.hidden { display: none !important; }
-
+/* Suvarma animasiyası */
 #watering-animation {
     position: absolute;
     width: 70px;
     height: 70px;
     pointer-events: none;
-    z-index: 10;
 }
 
 .droplet {
@@ -125,8 +94,60 @@ button:hover, button:focus {
     100% { transform: translateY(22px) rotate(45deg); opacity:0; }
 }
 
+/* Plot məlumat sahəsi */
+#plot-info {
+    background: #f0f8ffcc;
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 14.5px;
+    color: #2e4e2e;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+}
+
+/* Düymələr */
+.buttons {
+    text-align: center;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+button {
+    background: #6b8e23;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover, button:focus {
+    background: #9acd32;
+    outline: none;
+    box-shadow: 0 0 8px #9acd32;
+}
+
+/* Heyvan statusu */
+.animals-status {
+    text-align: center;
+    font-weight: 700;
+    color: #3e6611;
+}
+
+/* Gizli elementlər */
+.hidden {
+    display: none !important;
+}
+
+/* Mobil üçün */
 @media (max-width: 400px) {
     button { font-size: 0.9rem; padding: 10px 14px; }
     h1 { font-size: 1.5rem; }
-    .farm-plot { font-size: 2rem; }
+    #farm-plot { width: 150px; height: 150px; font-size: 2.5rem; }
+    #plant-area { font-size: 2.5rem; }
 }
