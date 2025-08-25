@@ -1,134 +1,140 @@
-/* Ümumi stil */
+/* Ümumi body */
 body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(to bottom, #e0ffe0, #ffffff);
-  margin: 0;
-  padding: 0;
-  text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom, #e0ffe0, #c0f0c0);
+    margin: 0;
+    padding: 20px;
+    text-align: center;
 }
 
+/* Başlıq */
 h1 {
-  margin: 15px 0;
-  font-size: 24px;
-  color: #2c662d;
-}
-
-.welcome-text {
-  font-size: 16px;
-  margin-bottom: 10px;
-  color: #444;
+    color: #4CAF50;
+    margin-bottom: 20px;
 }
 
 /* Status bar */
 .status-bar {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  background: #f0f0f0;
-  padding: 8px;
-  border-radius: 10px;
-  margin: 0 10px;
-  font-size: 14px;
+    display: flex;
+    justify-content: space-around;
+    background: #ffffffcc;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
 }
 
-/* Ferma sahəsi */
+/* Torpaq sahəsi */
 #farm-container {
-  margin: 20px auto;
-  max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 #farm-plot {
-  width: 100%;
-  aspect-ratio: 1/1;
-  border: 2px dashed #888;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fdfdfd;
-  position: relative;
+    position: relative;
+    width: 200px;
+    height: 200px;
+    background: #654321;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+}
+
+#soil {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #654321;
+    border-radius: 10px;
 }
 
 #plant-area {
-  font-size: 48px;
+    font-size: 2.5em;
+    z-index: 1;
 }
 
-#watering-animation .droplet {
-  width: 8px;
-  height: 8px;
-  background: #4da6ff;
-  border-radius: 50%;
-  position: absolute;
-  top: 0;
-  animation: fall 1.5s infinite;
+/* Suvarma animasiyası */
+#watering-animation {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
 }
 
-@keyframes fall {
-  from { transform: translateY(0); opacity: 1; }
-  to { transform: translateY(100px); opacity: 0; }
+.droplet {
+    position: absolute;
+    top: 0;
+    width: 5px;
+    height: 15px;
+    background: #00f;
+    border-radius: 50%;
+    animation: drop 0.8s linear infinite;
+}
+
+.hidden {
+    display: none;
+}
+
+@keyframes drop {
+    0% { top: 0; opacity: 1; }
+    100% { top: 180px; opacity: 0; }
 }
 
 /* Plot info */
 #plot-info {
-  margin: 15px auto;
-  max-width: 360px;
-  background: #f9f9f9;
-  padding: 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  text-align: left;
+    width: 90%;
+    max-width: 300px;
+    text-align: left;
+    margin-bottom: 20px;
 }
 
 /* Düymələr */
-.buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  max-width: 360px;
-  margin: 20px auto;
+.buttons button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin: 5px;
+    border-radius: 20px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
-button {
-  padding: 10px;
-  font-size: 14px;
-  background: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.2s;
+.buttons button:hover {
+    background-color: #45a049;
 }
 
-button:hover {
-  background: #45a049;
+/* Heyvan status */
+.animals-status p {
+    margin: 5px 0;
+    font-weight: bold;
 }
 
-button:active {
-  transform: scale(0.95);
-}
-
-/* Heyvan statusu */
-.animals-status {
-  margin: 20px auto;
-  max-width: 360px;
-  padding: 10px;
-  background: #fff;
-  border-radius: 10px;
-  font-size: 14px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* Kiçik ekran optimizasiya */
-@media (max-width: 400px) {
-  h1 {
-    font-size: 20px;
-  }
-  #plant-area {
-    font-size: 36px;
-  }
-  button {
-    font-size: 13px;
-    padding: 8px;
-  }
+/* Mobil uyğunluq */
+@media (max-width: 480px) {
+    #farm-plot {
+        width: 150px;
+        height: 150px;
+    }
+    #plant-area {
+        font-size: 2em;
+    }
+    .buttons button {
+        padding: 8px 12px;
+        font-size: 0.9em;
+    }
+    .status-bar {
+        flex-direction: column;
+        gap: 5px;
+    }
+    #plot-info {
+        max-width: 90%;
+    }
 }
