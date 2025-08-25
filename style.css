@@ -31,7 +31,7 @@ h1 {
 .farm-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 15px;
 }
 
@@ -43,15 +43,12 @@ h1 {
     background: linear-gradient(145deg,#7f5a2a,#9a6f34);
     box-shadow: inset 0 6px 18px #6f4e1e;
     cursor: pointer;
-}
-
-.farm-plot::after {
-    content: '🌿';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    color: #2f4f2f;
+    text-shadow: 0 0 4px #b0d4a7;
 }
 
 .buttons {
@@ -71,19 +68,21 @@ button {
     padding: 12px 18px;
     font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 button:hover, button:focus {
     background: #9acd32;
     outline: none;
     box-shadow: 0 0 8px #9acd32;
+    transform: scale(1.05);
 }
 
 .animals-status {
     text-align: center;
     font-weight: 700;
     color: #3e6611;
+    margin-bottom: 20px;
 }
 
 #plot-info {
@@ -96,15 +95,14 @@ button:hover, button:focus {
     margin-bottom: 15px;
 }
 
-.hidden {
-    display: none !important;
-}
+.hidden { display: none !important; }
 
 #watering-animation {
     position: absolute;
     width: 70px;
     height: 70px;
     pointer-events: none;
+    z-index: 10;
 }
 
 .droplet {
@@ -130,4 +128,5 @@ button:hover, button:focus {
 @media (max-width: 400px) {
     button { font-size: 0.9rem; padding: 10px 14px; }
     h1 { font-size: 1.5rem; }
+    .farm-plot { font-size: 2rem; }
 }
