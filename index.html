@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌾 Telegram Ferma Oyunu</title>
-<link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Telegram Ferma Oyunu</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <h1>🌾 Telegram Ferma Oyunu</h1>
+  
   <p id="welcome" class="welcome-text" aria-live="polite">Xoş gəlmisiniz, Bağban! 👨‍🌾</p>
 
   <div class="status-bar" role="region" aria-label="Status məlumatları">
@@ -18,13 +19,14 @@
   </div>
 
   <div id="farm-container" role="region" aria-label="Ferma sahəsi">
-    <div class="farm-grid">
-      <div class="farm-plot" data-plot="0" tabindex="0"></div>
-      <div class="farm-plot" data-plot="1" tabindex="0"></div>
-      <div class="farm-plot" data-plot="2" tabindex="0"></div>
-      <div class="farm-plot" data-plot="3" tabindex="0"></div>
+    <div class="plots">
+      <div class="farm-plot plot-empty" tabindex="0" data-index="0"></div>
+      <div class="farm-plot plot-empty" tabindex="0" data-index="1"></div>
+      <div class="farm-plot plot-empty" tabindex="0" data-index="2"></div>
+      <div class="farm-plot plot-empty" tabindex="0" data-index="3"></div>
     </div>
-    <div id="plot-info" role="region" aria-live="polite" tabindex="0">
+
+    <div id="plot-info" role="region" aria-live="polite" aria-atomic="true" tabindex="0">
       <p><strong>Bitki vəziyyəti:</strong> <span id="plant-stage-text">Yoxdur</span></p>
       <p><strong>Suvarmağa qalan vaxt:</strong> <span id="watering-timer">—</span></p>
       <p><strong>Məhsulun yetişməsinə qalan vaxt:</strong> <span id="harvest-timer">—</span></p>
@@ -32,13 +34,13 @@
     </div>
   </div>
 
-  <div class="buttons" role="group">
+  <div class="buttons" role="group" aria-label="Oyunun idarə düymələri">
     <button id="btn-plant">Bitki ək</button>
     <button id="btn-water">Suvar</button>
     <button id="btn-harvest">Məhsul yığ</button>
     <button id="btn-sell">Məhsul sat</button>
-    <button id="btn-buy-chicken">Toyuq al (100k coin)</button>
-    <button id="btn-buy-cow">İnək al (200k coin)</button>
+    <button id="btn-buy-chicken">Toyuq al (100000 coin)</button>
+    <button id="btn-buy-cow">İnək al (200000 coin)</button>
     <button id="btn-sell-eggs">Yumurtaları sat</button>
     <button id="btn-sell-milk">Südü sat</button>
   </div>
@@ -48,7 +50,7 @@
     <p>🐄 İnəklər: <span id="cows">0</span></p>
   </div>
 
-  <div id="watering-animation" class="hidden" aria-hidden="true"></div>
+  <div id="event-popup" class="hidden"></div>
 
   <script src="script.js"></script>
 </body>
