@@ -2,52 +2,30 @@
 const urlParams = new URLSearchParams(window.location.search);
 const telegramUser = urlParams.get('user') || 'Qonaq';
 
-const welcomeEl = document.getElementById('welcome');
-welcomeEl.innerText = `Xoş gəlmisiniz, @${telegramUser}!`;
-
-// Bitki şəkilləri (GitHub hosting)
-const plantImages = {
-    seed: 'https://huseynalinaciyev.github.io/tarla/seed.png',
-    growing: 'https://huseynalinaciyev.github.io/tarla/growing.png',
-    mature: 'https://huseynalinaciyev.github.io/tarla/mature.png',
-    burning: 'https://huseynalinaciyev.github.io/tarla/burning.png'
-};
+document.getElementById('welcome').innerText = `Xoş gəlmisiniz, @${telegramUser}!`;
 
 const COIN_PER_PRODUCT = 1;
 const EGG_SELL_PRICE = 5;
 const MILK_SELL_PRICE = 7;
 
 let data = {
-    coins: 0,
-    stock: 0,
-    eggs: 0,
-    milk: 0,
-    chickens: 0,
-    cows: 0,
-    farmPlot: {
-        plantStage: 'empty',
-        plantedAt: 0,
-        lastWateredAt: 0,
-        harvestReady: false
-    }
+    coins: 0, stock: 0, eggs: 0, milk: 0, chickens: 0, cows: 0,
+    farmPlots: [
+        { stage:'empty', plantedAt:0, lastWateredAt:0, harvestReady:false },
+        { stage:'empty', plantedAt:0, lastWateredAt:0, harvestReady:false },
+        { stage:'empty', plantedAt:0, lastWateredAt:0, harvestReady:false },
+        { stage:'empty', plantedAt:0, lastWateredAt:0, harvestReady:false },
+    ]
 };
 
 const storageKey = `farmGame_${telegramUser}`;
 
 function loadData() {
     const saved = localStorage.getItem(storageKey);
-    if (saved) {
-        try {
-            data = JSON.parse(saved);
-        } catch {
-            console.warn("Yaddaşdan məlumat oxunarkən səhv baş verdi.");
-        }
-    }
+    if (saved) data = JSON.parse(saved);
 }
 
-function saveData() {
-    localStorage.setItem(storageKey, JSON.stringify(data));
-}
+function saveData() { localStorage.setItem(storageKey, JSON.stringify(data)); }
 
 const coinsEl = document.getElementById('coins');
 const stockEl = document.getElementById('stock');
@@ -55,262 +33,120 @@ const eggsEl = document.getElementById('eggs');
 const milkEl = document.getElementById('milk');
 const chickensEl = document.getElementById('chickens');
 const cowsEl = document.getElementById('cows');
-const plantAreaEl = document.getElementById('plant-area');
-
+const plotEls = document.querySelectorAll('.farm-plot');
 const plotInfoStage = document.getElementById('plant-stage-text');
 const wateringTimerEl = document.getElementById('watering-timer');
 const harvestTimerEl = document.getElementById('harvest-timer');
 const plotInfoHarvest = document.getElementById('harvest-ready');
 const wateringEl = document.getElementById('watering-animation');
 
-function showWateringAnimation() {
-    wateringEl.innerHTML = '';
+function showWateringAnimation(el) {
+    wateringEl.innerHTML='';
     wateringEl.classList.remove('hidden');
-    for (let i = 0; i < 3; i++) {
+    for(let i=0;i<3;i++){
         const drop = document.createElement('div');
-        drop.className = 'droplet';
-        drop.style.left = `${i * 15}px`;
-        drop.style.animationDelay = `${i * 0.4}s`;
+        drop.className='droplet';
+        drop.style.left=`${i*15}px`;
         wateringEl.appendChild(drop);
     }
-    setTimeout(() => {
-        wateringEl.classList.add('hidden');
-        wateringEl.innerHTML = '';
-    }, 3000);
+    setTimeout(()=>wateringEl.classList.add('hidden'), 1500);
 }
 
 function formatTime(ms) {
-    if (ms <= 0) return '00:00';
-    const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
-    const seconds = (totalSeconds % 60).toString().padStart(2, '0');
-    return `${minutes}:${seconds}`;
+    if(ms<=0) return '00:00';
+    const s=Math.floor(ms/1000), m=Math.floor(s/60).toString().padStart(2,'0'), sec=(s%60).toString().padStart(2,'0');
+    return `${m}:${sec}`;
 }
 
-function updatePlotUI() {
-    const now = Date.now();
-    const plot = data.farmPlot;
-
-    let nextWaterTime = 0;
-    let harvestTime = 0;
-    let burnTime = 0;
-
-    if (plot.plantStage === 'seed') {
-        nextWaterTime = plot.plantedAt + 3600000;
-        burnTime = plot.plantedAt + 7200000;
-    } else if (plot.plantStage === 'growing') {
-        harvestTime = plot.lastWateredAt + 18000000;
-    } else if (plot.plantStage === 'burning') {
-        burnTime = plot.plantedAt + 9000000;
-    }
-
-    const url = plantImages[plot.plantStage];
-    if (url) {
-        const img = new Image();
-        img.onload = () => {
-            plantAreaEl.style.backgroundImage = `url(${url})`;
-            plantAreaEl.innerText = '';
-        };
-        img.onerror = () => {
-            plantAreaEl.style.backgroundImage = '';
-            plantAreaEl.innerText = plot.plantStage === 'burning' ? '🔥' : '🌿';
-        };
-        img.src = url;
-    } else {
-        plantAreaEl.style.backgroundImage = '';
-        plantAreaEl.innerText = plot.plantStage === 'burning' ? '🔥' : '🌿';
-    }
-
-    plotInfoStage.innerText = plot.plantStage.charAt(0).toUpperCase() + plot.plantStage.slice(1);
-
-    if (plot.plantStage === 'seed') {
-        const waterLeft = nextWaterTime - now;
-        wateringTimerEl.innerText = waterLeft > 0 ? formatTime(waterLeft) : 'Suvarma vaxtı çatıb!';
-        harvestTimerEl.innerText = '—';
-        plotInfoHarvest.innerText = 'Xeyr';
-    } else if (plot.plantStage === 'growing') {
-        const harvestLeft = harvestTime - now;
-        harvestTimerEl.innerText = harvestLeft > 0 ? formatTime(harvestLeft) : 'Hazırdır!';
-        wateringTimerEl.innerText = plot.lastWateredAt ? 'Son suvarma qeydi mövcuddur' : '—';
-        plotInfoHarvest.innerText = harvestLeft > 0 ? 'Xeyr' : 'Bəli';
-    } else if (plot.plantStage === 'burning') {
-        const burnLeft = burnTime - now;
-        wateringTimerEl.innerText = '—';
-        harvestTimerEl.innerText = '—';
-        plotInfoHarvest.innerText = 'Xeyr';
-    } else {
-        wateringTimerEl.innerText = '—';
-        harvestTimerEl.innerText = '—';
-        plotInfoHarvest.innerText = 'Xeyr';
-    }
+function updatePlotsUI() {
+    data.farmPlots.forEach((plot, i)=>{
+        const el = plotEls[i];
+        if(plot.stage==='empty'){ el.innerText='🌿'; }
+        else if(plot.stage==='seed'){ el.innerText='🌱'; }
+        else if(plot.stage==='growing'){ el.innerText='🌿'; }
+        else if(plot.stage==='mature'){ el.innerText='🍀'; }
+        else if(plot.stage==='burning'){ el.innerText='🔥'; }
+    });
 }
 
 function updateUI() {
-    coinsEl.innerText = data.coins;
-    stockEl.innerText = data.stock;
-    eggsEl.innerText = data.eggs;
-    milkEl.innerText = data.milk;
-    chickensEl.innerText = data.chickens;
-    cowsEl.innerText = data.cows;
-    updatePlotUI();
+    coinsEl.innerText=data.coins;
+    stockEl.innerText=data.stock;
+    eggsEl.innerText=data.eggs;
+    milkEl.innerText=data.milk;
+    chickensEl.innerText=data.chickens;
+    cowsEl.innerText=data.cows;
+    updatePlotsUI();
     saveData();
 }
 
-function plantCrop() {
-    if (data.farmPlot.plantStage !== 'empty' && data.farmPlot.plantStage !== 'burning') {
-        alert('Əvvəlki bitkinizi yığın və ya yandırın!');
-        return;
-    }
-    data.farmPlot.plantStage = 'seed';
-    data.farmPlot.plantedAt = Date.now();
-    data.farmPlot.lastWateredAt = 0;
-    data.farmPlot.harvestReady = false;
-    updateUI();
-    plantAreaEl.innerText = '🌱';
-    alert('Bitki əkildi! 1 saat ərzində suvarın.');
+// Əsas əməliyyatlar
+function plantCrop(plotIndex){
+    const plot = data.farmPlots[plotIndex];
+    if(plot.stage!=='empty'&&plot.stage!=='burning'){ alert('Əvvəlki bitkinizi yığın!'); return; }
+    plot.stage='seed';
+    plot.plantedAt=Date.now(); plot.lastWateredAt=0; plot.harvestReady=false;
+    updateUI(); alert('Bitki əkildi! 1 saat ərzində suvarın.');
 }
 
-function waterCrop() {
-    if (data.farmPlot.plantStage === 'empty' || data.farmPlot.plantStage === 'burning') {
-        alert('Əvvəlcə bitki əkilməlidir.');
-        return;
-    }
-    const now = Date.now();
-    if (data.farmPlot.lastWateredAt && now - data.farmPlot.lastWateredAt < 3600000) {
-        alert('Suvarma 1 saatda 1 dəfə mümkündür.');
-        return;
-    }
-    data.farmPlot.lastWateredAt = now;
-    if (data.farmPlot.plantStage === 'seed') {
-        data.farmPlot.plantStage = 'growing';
-    }
+function waterCrop(plotIndex){
+    const plot=data.farmPlots[plotIndex];
+    if(plot.stage==='empty'||plot.stage==='burning'){ alert('Əvvəlcə bitki əkilməlidir'); return; }
+    const now=Date.now();
+    if(plot.lastWateredAt && now-plot.lastWateredAt<3600000){ alert('1 saatda 1 dəfə suvarma mümkündür'); return; }
+    plot.lastWateredAt=now;
+    if(plot.stage==='seed') plot.stage='growing';
     showWateringAnimation();
     updateUI();
     alert('Bitki suvarıldı! 5 saat sonra məhsul yığa bilərsiniz.');
 }
 
-function harvestCrop() {
-    if (data.farmPlot.plantStage !== 'mature' || !data.farmPlot.harvestReady) {
-        alert('Məhsul hələ yığılmağa hazır deyil.');
-        return;
-    }
-    data.stock++;
-    data.farmPlot.plantStage = 'empty';
-    data.farmPlot.harvestReady = false;
-    data.farmPlot.plantedAt = 0;
-    data.farmPlot.lastWateredAt = 0;
-    updateUI();
-    alert('Məhsul yığdınız! 1 coin qazandınız.');
-}
-
-function sellProduct() {
-    if (data.stock <= 0) {
-        alert('Satacaq məhsulunuz yoxdur.');
-        return;
-    }
-    data.coins += data.stock * COIN_PER_PRODUCT;
-    data.stock = 0;
-    updateUI();
-    alert('Məhsullar satıldı!');
-}
-
-function buyChicken() {
-    if (data.coins < 100000) {
-        alert('Kifayət qədər pulunuz yoxdur!');
-        return;
-    }
-    data.coins -= 100000;
-    data.chickens++;
-    updateUI();
-    alert('Toyuq alındı!');
-}
-
-function buyCow() {
-    if (data.coins < 200000) {
-        alert('Kifayət qədər pulunuz yoxdur!');
-        return;
-    }
-    data.coins -= 200000;
-    data.cows++;
-    updateUI();
-    alert('İnək alındı!');
-}
-
-function sellEggs() {
-    if (data.eggs <= 0) {
-        alert('Satacaq yumurta yoxdur.');
-        return;
-    }
-    data.coins += data.eggs * EGG_SELL_PRICE;
-    data.eggs = 0;
-    updateUI();
-    alert('Yumurtalar satıldı!');
-}
-
-function sellMilk() {
-    if (data.milk <= 0) {
-        alert('Satacaq süd yoxdur.');
-        return;
-    }
-    data.coins += data.milk * MILK_SELL_PRICE;
-    data.milk = 0;
-    updateUI();
-    alert('Süd satıldı!');
-}
-
-// Avtomatik əməliyyatlar hər 1 dəqiqədə (60,000 ms)
-setInterval(() => {
-    const now = Date.now();
-
-    if (data.farmPlot.plantStage === 'seed') {
-        if (data.farmPlot.plantedAt && now - data.farmPlot.plantedAt > 3600000) {
-            data.farmPlot.plantStage = 'burning';
-            updateUI();
-            alert('Bitki suvarılmadığı üçün yandı!');
-        }
-    }
-
-    if (data.farmPlot.plantStage === 'growing') {
-        if (data.farmPlot.lastWateredAt && now - data.farmPlot.lastWateredAt > 18000000) {
-            data.farmPlot.plantStage = 'mature';
-            data.farmPlot.harvestReady = true;
-            updateUI();
-            alert('Bitki yetişdi! Məhsulu yığa bilərsiniz.');
-        }
-    }
-
-    if (data.farmPlot.plantStage === 'burning') {
-        if (data.farmPlot.plantedAt && now - data.farmPlot.plantedAt > 9000000) {
-            data.farmPlot.plantStage = 'empty';
-            data.farmPlot.plantedAt = 0;
-            data.farmPlot.lastWateredAt = 0;
-            data.farmPlot.harvestReady = false;
-            updateUI();
-            alert('Yanmış bitki torpaqdan təmizləndi.');
-        }
-    }
-
-    if (data.chickens > 0) data.eggs += data.chickens;
-    if (data.cows > 0) data.milk += data.cows;
-
-    updateUI();
-}, 60000);
-
-setInterval(() => {
-    updatePlotUI();
-}, 1000);
-
-window.addEventListener('load', () => {
-    loadData();
-    updateUI();
-
-    // Event listenerləri bağla
-    document.getElementById('btn-plant').addEventListener('click', plantCrop);
-    document.getElementById('btn-water').addEventListener('click', waterCrop);
-    document.getElementById('btn-harvest').addEventListener('click', harvestCrop);
-    document.getElementById('btn-sell').addEventListener('click', sellProduct);
-    document.getElementById('btn-buy-chicken').addEventListener('click', buyChicken);
-    document.getElementById('btn-buy-cow').addEventListener('click', buyCow);
-    document.getElementById('btn-sell-eggs').addEventListener('click', sellEggs);
-    document.getElementById('btn-sell-milk').addEventListener('click', sellMilk);
+// Event listener
+plotEls.forEach((el,i)=>{
+    el.addEventListener('click',()=>plantCrop(i));
 });
+
+document.getElementById('btn-water').addEventListener('click',()=>{
+    plotEls.forEach((el,i)=>waterCrop(i));
+});
+
+// Coins, heyvan və məhsul düymələri
+document.getElementById('btn-sell').addEventListener('click',()=>{
+    if(data.stock<=0){ alert('Satacaq məhsul yoxdur'); return; }
+    data.coins+=data.stock*COIN_PER_PRODUCT; data.stock=0; updateUI(); alert('Məhsul satıldı!');
+});
+document.getElementById('btn-buy-chicken').addEventListener('click',()=>{
+    if(data.coins<100000){ alert('Pul kifayət deyil!'); return; }
+    data.coins-=100000; data.chickens++; updateUI(); alert('Toyuq alındı!');
+});
+document.getElementById('btn-buy-cow').addEventListener('click',()=>{
+    if(data.coins<200000){ alert('Pul kifayət deyil!'); return; }
+    data.coins-=200000; data.cows++; updateUI(); alert('İnək alındı!');
+});
+document.getElementById('btn-sell-eggs').addEventListener('click',()=>{
+    if(data.eggs<=0){ alert('Satacaq yumurta yoxdur'); return; }
+    data.coins+=data.eggs*EGG_SELL_PRICE; data.eggs=0; updateUI(); alert('Yumurtalar satıldı!');
+});
+document.getElementById('btn-sell-milk').addEventListener('click',()=>{
+    if(data.milk<=0){ alert('Satacaq süd yoxdur'); return; }
+    data.coins+=data.milk*MILK_SELL_PRICE; data.milk=0; updateUI(); alert('Süd satıldı!');
+});
+
+// Yüklənmə
+window.addEventListener('load',()=>{
+    loadData(); updateUI();
+});
+
+// Avtomatik əməliyyatlar
+setInterval(()=>{
+    const now=Date.now();
+    data.farmPlots.forEach(plot=>{
+        if(plot.stage==='seed' && now-plot.plantedAt>3600000) plot.stage='burning';
+        if(plot.stage==='growing' && plot.lastWateredAt && now-plot.lastWateredAt>18000000){ plot.stage='mature'; plot.harvestReady=true; }
+        if(plot.stage==='burning' && now-plot.plantedAt>9000000){ plot.stage='empty'; plot.plantedAt=0; plot.lastWateredAt=0; plot.harvestReady=false; }
+    });
+    if(data.chickens>0) data.eggs+=data.chickens;
+    if(data.cows>0) data.milk+=data.cows;
+    updateUI();
+},60000);
+
