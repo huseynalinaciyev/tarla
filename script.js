@@ -17,8 +17,12 @@ const plantStages = {
 const COIN_PER_PRODUCT = 1;
 const EGG_SELL_PRICE = 5;
 const MILK_SELL_PRICE = 7;
-const PLANT_COST = 5;         // Bitki əkilməsi üçün coin
-const DAILY_BONUS_AMOUNT = 10; // Günlük bonus
+const PLANT_COST = 5;           // Bitki əkilməsi üçün coin
+const DAILY_BONUS_AMOUNT = 10;  // Günlük bonus
+
+// Zamanlar
+const WATER_LIMIT = 15 * 60 * 1000;   // 15 dəq
+const HARVEST_TIME = 30 * 60 * 1000;  // 30 dəq
 
 let data = {
     coins: 20, // başlanğıc coin
@@ -42,7 +46,8 @@ const storageKey = `farmGame_${telegramUser}`;
 function loadData() {
     const saved = localStorage.getItem(storageKey);
     if (saved) {
-        try { data = JSON.parse(saved); } catch { console.warn("Yaddaşdan məlumat oxunarkən səhv."); }
+        try { data = JSON.parse(saved); } 
+        catch { console.warn("Yaddaşdan məlumat oxunarkən səhv."); }
     }
 }
 function saveData() {
@@ -99,12 +104,12 @@ function updatePlotUI() {
     plotInfoStage.innerText = plot.plantStage.charAt(0).toUpperCase() + plot.plantStage.slice(1);
 
     if(plot.plantStage==='seed') {
-        const waterLeft = plot.plantedAt+3600000 - now;
+        const waterLeft = plot.plantedAt+WATER_LIMIT - now;
         wateringTimerEl.innerText = waterLeft>0 ? formatTime(waterLeft) : 'Suvarma vaxtı çatıb!';
         harvestTimerEl.innerText = '—';
         plotInfoHarvest.innerText = 'Xeyr';
     } else if(plot.plantStage==='growing') {
-        const harvestLeft = plot.lastWateredAt+18000000 - now;
+        const harvestLeft = plot.lastWateredAt+HARVEST_TIME - now;
         harvestTimerEl.innerText = harvestLeft>0 ? formatTime(harvestLeft) : 'Hazırdır!';
         wateringTimerEl.innerText = 'Son suvarma qeydi mövcuddur';
         plotInfoHarvest.innerText = harvestLeft>0 ? 'Xeyr' : 'Bəli';
@@ -132,7 +137,10 @@ function updateUI() {
 
 // Bitki əməliyyatları
 function plantCrop() {
-    if(data.coins < PLANT_COST) { alert('Kifayət qədər coin yoxdur!'); return; }
+    if(data.coins < PLANT_COST) { 
+        alert('Kifayət qədər coin yoxdur!'); 
+        return; 
+    }
     const plot = data.farmPlot;
     if(plot.plantStage!=='empty' && plot.plantStage!=='burning') {
         alert('Əvvəlki bitkinizi yığın və ya yandırın!');
@@ -144,7 +152,7 @@ function plantCrop() {
     plot.lastWateredAt=0;
     plot.harvestReady=false;
     updateUI();
-    alert(`Bitki əkildi! ${PLANT_COST} coin xərcləndi. 1 saat ərzində suvarın.`);
+    alert(`Bitki əkildi! ${PLANT_COST} coin xərcləndi. 15 dəqiqə ərzində suvarın.`);
 }
 
 function waterCrop() {
@@ -153,16 +161,11 @@ function waterCrop() {
         alert('Əvvəlcə bitki əkilməlidir.');
         return;
     }
-    const now = Date.now();
-    if(plot.lastWateredAt && now - plot.lastWateredAt<3600000){
-        alert('Suvarma 1 saatda 1 dəfə mümkündür.');
-        return;
-    }
-    plot.lastWateredAt=now;
+    plot.lastWateredAt=Date.now();
     if(plot.plantStage==='seed') plot.plantStage='growing';
     showWateringAnimation();
     updateUI();
-    alert('Bitki suvarıldı! 5 saat sonra məhsul yığa bilərsiniz.');
+    alert('Bitki suvarıldı! 30 dəqiqə sonra məhsul yığa bilərsiniz.');
 }
 
 function harvestCrop() {
@@ -182,14 +185,17 @@ function harvestCrop() {
 
 // Günlük bonus
 function dailyBonus() {
-    if(data.dailyBonusClaimed) { alert('Günlük bonus artıq alınıb. Sabah üçün saxla!'); return; }
+    if(data.dailyBonusClaimed) { 
+        alert('Günlük bonus artıq alınıb. Sabah üçün saxla!'); 
+        return; 
+    }
     data.coins += DAILY_BONUS_AMOUNT;
     data.dailyBonusClaimed = true;
     updateUI();
     alert(`Günlük bonus alındı! ${DAILY_BONUS_AMOUNT} coin qazandınız.`);
 }
 
-// Məhsul satışı və heyvanlar (əvvəlki kimi)
+// Məhsul satışı və heyvanlar
 function sellProduct(){ if(data.stock<=0){ alert('Satacaq məhsul yoxdur.'); return; } data.coins+=data.stock*COIN_PER_PRODUCT; data.stock=0; updateUI(); alert('Məhsullar satıldı!'); }
 function buyChicken(){ if(data.coins<100000){ alert('Kifayət qədər pul yoxdur!'); return; } data.coins-=100000; data.chickens++; updateUI(); alert('Toyuq alındı!'); }
 function buyCow(){ if(data.coins<200000){ alert('Kifayət qədər pul yoxdur!'); return; } data.coins-=200000; data.cows++; updateUI(); alert('İnək alındı!'); }
@@ -201,9 +207,25 @@ setInterval(()=>{
     const now = Date.now();
     const plot = data.farmPlot;
 
-    if(plot.plantStage==='seed' && now - plot.plantedAt>3600000){ plot.plantStage='burning'; updateUI(); alert('Bitki suvarılmadığı üçün yandı!'); }
-    if(plot.plantStage==='growing' && now - plot.lastWateredAt>18000000){ plot.plantStage='mature'; plot.harvestReady=true; updateUI(); alert('Bitki yetişdi! Məhsulu yığa bilərsiniz.'); }
-    if(plot.plantStage==='burning' && now - plot.plantedAt>9000000){ plot.plantStage='empty'; plot.plantedAt=0; plot.lastWateredAt=0; plot.harvestReady=false; updateUI(); alert('Yanmış bitki torpaqdan təmizləndi.'); }
+    if(plot.plantStage==='seed' && now - plot.plantedAt>WATER_LIMIT){ 
+        plot.plantStage='burning'; 
+        updateUI(); 
+        alert('Bitki suvarılmadığı üçün yandı!'); 
+    }
+    if(plot.plantStage==='growing' && now - plot.lastWateredAt>HARVEST_TIME){ 
+        plot.plantStage='mature'; 
+        plot.harvestReady=true; 
+        updateUI(); 
+        alert('Bitki yetişdi! Məhsulu yığa bilərsiniz.'); 
+    }
+    if(plot.plantStage==='burning' && now - plot.plantedAt>HARVEST_TIME){ 
+        plot.plantStage='empty'; 
+        plot.plantedAt=0; 
+        plot.lastWateredAt=0; 
+        plot.harvestReady=false; 
+        updateUI(); 
+        alert('Yanmış bitki torpaqdan təmizləndi.'); 
+    }
 
     if(data.chickens>0) data.eggs+=data.chickens;
     if(data.cows>0) data.milk+=data.cows;
