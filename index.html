@@ -19,38 +19,37 @@
   </div>
 
   <div id="farm-container" role="region" aria-label="Ferma sahəsi">
-    <div class="plots">
-      <div class="farm-plot plot-empty" tabindex="0" data-index="0"></div>
-      <div class="farm-plot plot-empty" tabindex="0" data-index="1"></div>
-      <div class="farm-plot plot-empty" tabindex="0" data-index="2"></div>
-      <div class="farm-plot plot-empty" tabindex="0" data-index="3"></div>
+    <div id="farm-plot" class="plot-empty" tabindex="0" aria-label="Torpaq sahəsi. Bitki vəziyyətini görmək üçün enter basın." onkeydown="if(event.key==='Enter'){showPlotInfo()}" onclick="showPlotInfo()">
+      <div id="soil"></div>
+      <div id="plant-area" role="img" aria-live="polite" aria-label="Bitkinin şəkli və vəziyyəti"></div>
+      <div id="watering-animation" class="hidden" aria-hidden="true"></div>
     </div>
 
-    <div id="plot-info" role="region" aria-live="polite" aria-atomic="true" tabindex="0">
-      <p><strong>Bitki vəziyyəti:</strong> <span id="plant-stage-text">Yoxdur</span></p>
+    <div id="plot-info" role="region" aria-live="polite" aria-atomic="true" tabindex="0" style="margin-top: 15px; border: 1px solid #ccc; border-radius: 8px; padding: 10px; background: #f9f9f9;">
+      <p><strong>Bitki növü:</strong> <span id="plant-type-text">—</span></p>
+      <p><strong>Bitki mərhələsi:</strong> <span id="plant-stage-text">Yoxdur</span></p>
       <p><strong>Suvarmağa qalan vaxt:</strong> <span id="watering-timer">—</span></p>
       <p><strong>Məhsulun yetişməsinə qalan vaxt:</strong> <span id="harvest-timer">—</span></p>
       <p><strong>Məhsul yığılmağa hazırdır:</strong> <span id="harvest-ready">Xeyr</span></p>
     </div>
   </div>
 
-  <div class="buttons" role="group" aria-label="Oyunun idarə düymələri">
-    <button id="btn-plant">Bitki ək</button>
-    <button id="btn-water">Suvar</button>
-    <button id="btn-harvest">Məhsul yığ</button>
-    <button id="btn-sell">Məhsul sat</button>
-    <button id="btn-buy-chicken">Toyuq al (100000 coin)</button>
-    <button id="btn-buy-cow">İnək al (200000 coin)</button>
-    <button id="btn-sell-eggs">Yumurtaları sat</button>
-    <button id="btn-sell-milk">Südü sat</button>
+  <div class="buttons" role="group" aria-label="Oyunun idarə düymələri" style="margin-top: 20px; text-align:center;">
+    <button onclick="plantCrop()" id="btn-plant">Bitki ək</button>
+    <button onclick="waterCrop()" id="btn-water">Suvar</button>
+    <button onclick="harvestCrop()" id="btn-harvest">Məhsul yığ</button>
+    <button onclick="sellProduct()" id="btn-sell">Məhsul sat</button>
+    <button onclick="buyChicken()" id="btn-buy-chicken">Toyuq al (1000 coin)</button>
+    <button onclick="buyCow()" id="btn-buy-cow">İnək al (2000 coin)</button>
+    <button onclick="sellEggs()" id="btn-sell-eggs">Yumurtaları sat</button>
+    <button onclick="sellMilk()" id="btn-sell-milk">Südü sat</button>
+    <button onclick="dailyBonus()" id="btn-daily-bonus">Günlük bonus</button>
   </div>
 
-  <div class="animals-status" aria-live="polite">
+  <div class="animals-status" aria-live="polite" style="margin-top: 20px; text-align:center;">
     <p>🐔 Toyuqlar: <span id="chickens">0</span></p>
     <p>🐄 İnəklər: <span id="cows">0</span></p>
   </div>
-
-  <div id="event-popup" class="hidden"></div>
 
   <script src="script.js"></script>
 </body>
