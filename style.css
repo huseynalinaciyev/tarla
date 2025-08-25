@@ -1,4 +1,4 @@
-/* Ümumi bədən və fon */
+/* Ümumi stil */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     max-width: 480px;
@@ -11,15 +11,14 @@ body {
     user-select: none;
 }
 
-/* Başlıq */
 h1 {
     text-align: center;
     color: #2f4f2f;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
     font-size: 1.9rem;
 }
 
-/* Status paneli */
+/* Status bar */
 .status-bar {
     display: flex;
     justify-content: space-around;
@@ -31,78 +30,45 @@ h1 {
     gap: 12px;
 }
 
-/* Tək torpaq sahəsi */
-#farm-container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
+/* Torpaq sahəsi */
+#plant-area-container {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
 }
 
-#farm-plot {
-    width: 200px;
-    height: 200px;
+.farm-plot {
+    width: 100%;
+    padding-top: 100%;
     position: relative;
     border-radius: 20px;
-    background: linear-gradient(145deg, #7f5a2a, #9a6f34);
+    background: linear-gradient(145deg,#7f5a2a,#9a6f34);
     box-shadow: inset 0 6px 18px #6f4e1e;
     cursor: pointer;
+    font-size: 2rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 3rem;
-    transition: transform 0.2s ease;
 }
 
-#farm-plot:hover {
-    transform: scale(1.05);
-}
-
-/* Bitki sahəsi */
-#plant-area {
+/* Bitki animasiya glow */
+.plant-glow {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 3rem;
-}
-
-/* Suvarma animasiyası */
-#watering-animation {
-    position: absolute;
     width: 70px;
     height: 70px;
+    background: radial-gradient(circle, #ffff66 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
     pointer-events: none;
+    animation: glow 1.5s ease-out forwards;
 }
-
-.droplet {
-    width: 12px;
-    height: 12px;
-    background: #00bfff;
-    border-radius: 50% 50% 50% 0;
-    position: absolute;
-    animation: drip 1.3s linear infinite;
-    opacity: 0.8;
-}
-
-.droplet:nth-child(1) { left: 0; animation-delay: 0s; }
-.droplet:nth-child(2) { left: 16px; animation-delay: 0.45s; }
-.droplet:nth-child(3) { left: 32px; animation-delay: 0.9s; }
-
-@keyframes drip {
-    0% { transform: translateY(0) rotate(45deg); opacity:0.8; }
-    80% { opacity:0.8; }
-    100% { transform: translateY(22px) rotate(45deg); opacity:0; }
-}
-
-/* Plot məlumat sahəsi */
-#plot-info {
-    background: #f0f8ffcc;
-    border-radius: 10px;
-    padding: 12px 15px;
-    font-size: 14.5px;
-    color: #2e4e2e;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin-bottom: 15px;
+@keyframes glow {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
 }
 
 /* Düymələr */
@@ -114,7 +80,6 @@ h1 {
     justify-content: center;
     gap: 10px;
 }
-
 button {
     background: #6b8e23;
     color: white;
@@ -123,31 +88,107 @@ button {
     padding: 12px 18px;
     font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s;
 }
-
 button:hover, button:focus {
     background: #9acd32;
     outline: none;
     box-shadow: 0 0 8px #9acd32;
+    transform: scale(1.05);
 }
 
-/* Heyvan statusu */
+/* Animasiyalar: su damcıları */
+#watering-animation {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    pointer-events: none;
+}
+.droplet {
+    width: 12px;
+    height: 12px;
+    background: #00bfff;
+    border-radius: 50% 50% 50% 0;
+    position: absolute;
+    animation: drip 1.3s linear infinite;
+    opacity: 0.8;
+}
+.droplet:nth-child(1) { left: 0; animation-delay: 0s; }
+.droplet:nth-child(2) { left: 16px; animation-delay: 0.45s; }
+.droplet:nth-child(3) { left: 32px; animation-delay: 0.9s; }
+@keyframes drip {
+    0% { transform: translateY(0) rotate(45deg); opacity:0.8; }
+    80% { opacity:0.8; }
+    100% { transform: translateY(22px) rotate(45deg); opacity:0; }
+}
+
+/* Suvarma/Yağış animasiyası */
+.rain-drop {
+    position: absolute;
+    top: 0;
+    width: 4px;
+    height: 12px;
+    background: #00bfff;
+    opacity: 0.7;
+    animation: fall linear infinite;
+}
+@keyframes fall {
+    0% { top: -10px; opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+}
+
+/* Böcək animasiyası */
+.bug {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: #ff4500;
+    border-radius: 50%;
+    animation: fly 2s linear forwards;
+}
+@keyframes fly {
+    0% { top: 50%; transform: translateX(0); }
+    100% { top: 50%; transform: translateX(200px); }
+}
+
+/* Bonus coin */
+.bonus-coin {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    font-size: 1.2rem;
+    color: gold;
+    font-weight: 700;
+    text-shadow: 0 0 5px #ff0;
+    transform: translate(-50%, -50%);
+    animation: rise 1.5s ease-out forwards;
+}
+@keyframes rise {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -150%) scale(1.5); opacity: 0; }
+}
+
+/* Status yazıları */
 .animals-status {
     text-align: center;
     font-weight: 700;
     color: #3e6611;
 }
-
-/* Gizli elementlər */
-.hidden {
-    display: none !important;
+#plot-info {
+    background: #f0f8ffcc;
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 14.5px;
+    color: #2e4e2e;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
 }
 
-/* Mobil üçün */
+/* Gizli elementlər */
+.hidden { display: none !important; }
+
+/* Responsive */
 @media (max-width: 400px) {
     button { font-size: 0.9rem; padding: 10px 14px; }
     h1 { font-size: 1.5rem; }
-    #farm-plot { width: 150px; height: 150px; font-size: 2.5rem; }
-    #plant-area { font-size: 2.5rem; }
 }
